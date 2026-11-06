@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+message: "If you use trialnoise, please cite it as below."
+title: trialnoise
+abstract: >-
+  Variance components of the public Terminal-Bench 2 leaderboard (task, cell, task x cell, trial
+  and run), a separation of scaffold from model, and a calculator for how many trials and tasks a
+  comparison needs, calibrated on public data and checked on submissions it never saw.
+type: software
+authors:
+  - name: h-a-forster
+repository-code: "https://github.com/h-a-forster/trialnoise"
+license: MIT
+version: 0.1.0
+date-released: "2026-11-06"
+keywords:
+  - llm evaluation
+  - agent evaluation
+  - variance components
+  - power analysis
+  - terminal-bench
+references:
+  - type: software
+    authors:
+      - name: h-a-forster
+    title: evalnoise
+    repository-code: "https://github.com/h-a-forster/evalnoise"
+  - type: article
+    authors:
+      - family-names: Liu
+        given-names: Fengshuo
+      - family-names: Liu
+        given-names: Ying
+      - family-names: Sun
+        given-names: Ruize
+      - family-names: Luo
+        given-names: Lie
+      - family-names: Guo
+        given-names: Siyuan
+    title: "Coding Agents Have Converged: Why the SWE-bench Leaderboard Can No Longer Order Its Top Entries, and What to Measure Instead"
+    year: 2026
+    notes: arXiv:2609.17394
+  - type: article
+    authors:
+      - family-names: Mustahsan
+        given-names: Zairah
+      - family-names: Lim
+        given-names: Abel
+      - family-names: Anand
+        given-names: Megna
+      - family-names: Jain
+        given-names: Saahil
+      - family-names: McCann
+        given-names: Bryan
+    title: "Stochasticity in Agentic Evaluations: Quantifying Inconsistency with Intraclass Correlation"
+    year: 2025
+    notes: arXiv:2512.06710

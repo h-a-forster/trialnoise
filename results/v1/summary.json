@@ -1,0 +1,1418 @@
+{
+ "components": {
+  "df": {
+   "cell": 107,
+   "task": 88,
+   "task_cell": 9416,
+   "trial": 37218
+  },
+  "grand": 0.419748,
+  "per_cell_icc": {
+   "max": 0.784227,
+   "median": 0.611297,
+   "min": 0.0863662,
+   "q10": 0.441944,
+   "q90": 0.68609
+  },
+  "tasks": {
+   "cell": [
+    0.0285852,
+    0.0449685
+   ],
+   "icc1": [
+    0.552791,
+    0.643862
+   ],
+   "icc1_k": [
+    0.860733,
+    0.900393
+   ],
+   "icc_pair": [
+    0.341298,
+    0.400756
+   ],
+   "share_cell": [
+    0.118949,
+    0.182422
+   ],
+   "share_task": [
+    0.248774,
+    0.37078
+   ],
+   "share_task_cell": [
+    0.180863,
+    0.221446
+   ],
+   "share_trial": [
+    0.308836,
+    0.372785
+   ],
+   "task": [
+    0.0606233,
+    0.0906647
+   ],
+   "task_cell": [
+    0.0442712,
+    0.0537564
+   ],
+   "trial": [
+    0.074384,
+    0.0919158
+   ]
+  },
+  "tasks_and_cells": {
+   "cell": [
+    0.0259673,
+    0.0473182
+   ],
+   "icc1": [
+    0.550519,
+    0.648377
+   ],
+   "icc1_k": [
+    0.859628,
+    0.902151
+   ],
+   "icc_pair": [
+    0.330343,
+    0.405894
+   ],
+   "share_cell": [
+    0.10739,
+    0.193372
+   ],
+   "share_task": [
+    0.249119,
+    0.381296
+   ],
+   "share_task_cell": [
+    0.175133,
+    0.222289
+   ],
+   "share_trial": [
+    0.304408,
+    0.379086
+   ],
+   "task": [
+    0.0603489,
+    0.0936217
+   ],
+   "task_cell": [
+    0.0427023,
+    0.0539787
+   ],
+   "trial": [
+    0.0733342,
+    0.093123
+   ]
+  },
+  "values": {
+   "cell": 0.03563,
+   "icc1": 0.603068,
+   "icc1_k": 0.883675,
+   "icc_pair": 0.374432,
+   "share_cell": 0.145603,
+   "share_task": 0.31227,
+   "share_task_cell": 0.20299,
+   "share_trial": 0.339137,
+   "task": 0.0764145,
+   "task_cell": 0.0496728,
+   "trial": 0.082989
+  }
+ },
+ "cost": {
+  "cells": 55,
+  "cheapest": [
+   {
+    "cell": "terminus-2/deepseek-v3.2",
+    "cost_per_pass": 0.031069,
+    "cost_per_trial": 0.012288,
+    "coverage": 1.0,
+    "hi": 0.0432852,
+    "lo": 0.0227464,
+    "pass_rate": 0.395506,
+    "trials": 445
+   },
+   {
+    "cell": "codex/gpt-5-nano",
+    "cost_per_pass": 0.0436634,
+    "cost_per_trial": 0.00526438,
+    "coverage": 0.961364,
+    "hi": 0.0729915,
+    "lo": 0.0297706,
+    "pass_rate": 0.120567,
+    "trials": 440
+   },
+   {
+    "cell": "mini-swe-agent/grok-code-fast-1",
+    "cost_per_pass": 0.0579708,
+    "cost_per_trial": 0.0152122,
+    "coverage": 0.950562,
+    "hi": 0.0879988,
+    "lo": 0.039833,
+    "pass_rate": 0.262411,
+    "trials": 445
+   },
+   {
+    "cell": "terminus-2/grok-code-fast-1",
+    "cost_per_pass": 0.0702028,
+    "cost_per_trial": 0.0100518,
+    "coverage": 0.988764,
+    "hi": 0.115374,
+    "lo": 0.0467274,
+    "pass_rate": 0.143182,
+    "trials": 445
+   },
+   {
+    "cell": "codex/gpt-5-mini",
+    "cost_per_pass": 0.0959953,
+    "cost_per_trial": 0.032232,
+    "coverage": 0.940503,
+    "hi": 0.137756,
+    "lo": 0.0678874,
+    "pass_rate": 0.335766,
+    "trials": 437
+   }
+  ],
+  "cheapest_above_half": [
+   {
+    "cell": "codex/gpt-5",
+    "cost_per_pass": 0.337997,
+    "cost_per_trial": 0.179768,
+    "coverage": 0.929385,
+    "hi": 0.460468,
+    "lo": 0.249276,
+    "pass_rate": 0.531863,
+    "trials": 439
+   },
+   {
+    "cell": "terminus-2/claude-opus-4-6",
+    "cost_per_pass": 0.795144,
+    "cost_per_trial": 0.500315,
+    "coverage": 1.0,
+    "hi": 1.05407,
+    "lo": 0.598779,
+    "pass_rate": 0.629213,
+    "trials": 445
+   },
+   {
+    "cell": "terminus-2/gemini-3-pro",
+    "cost_per_pass": 0.809008,
+    "cost_per_trial": 0.459953,
+    "coverage": 1.0,
+    "hi": 1.14345,
+    "lo": 0.576666,
+    "pass_rate": 0.568539,
+    "trials": 445
+   },
+   {
+    "cell": "terminus-2/claude-opus-4-5",
+    "cost_per_pass": 0.996556,
+    "cost_per_trial": 0.576836,
+    "coverage": 0.997753,
+    "hi": 1.36507,
+    "lo": 0.727164,
+    "pass_rate": 0.578829,
+    "trials": 445
+   },
+   {
+    "cell": "terminus-3-3/gemini-3.1-pro",
+    "cost_per_pass": 1.00888,
+    "cost_per_trial": 0.754957,
+    "coverage": 1.0,
+    "hi": 1.28304,
+    "lo": 0.79208,
+    "pass_rate": 0.748315,
+    "trials": 445
+   }
+  ],
+  "dearest": [
+   {
+    "cell": "openhands/claude-haiku-4-5",
+    "cost_per_pass": 50.3963,
+    "cost_per_trial": 7.47505,
+    "coverage": 0.941441,
+    "hi": 80.7365,
+    "lo": 33.3854,
+    "pass_rate": 0.148325,
+    "trials": 444
+   },
+   {
+    "cell": "openhands/qwen3-coder-480b",
+    "cost_per_pass": 12.8157,
+    "cost_per_trial": 3.33682,
+    "coverage": 0.979684,
+    "hi": 20.0589,
+    "lo": 8.63653,
+    "pass_rate": 0.260369,
+    "trials": 443
+   },
+   {
+    "cell": "openhands/claude-opus-4-1",
+    "cost_per_pass": 9.20857,
+    "cost_per_trial": 3.43229,
+    "coverage": 0.988764,
+    "hi": 12.9575,
+    "lo": 6.65498,
+    "pass_rate": 0.372727,
+    "trials": 445
+   }
+  ],
+  "median_cost_per_pass": 0.878926,
+  "median_cost_per_trial": 0.326121
+ },
+ "data": {
+  "cells": 109,
+  "copied_cells": [
+   "final/claude-sonnet-4-5"
+  ],
+  "copied_submissions": [
+   "MAYA__Claude-4.5-sonnet"
+  ],
+  "duplicate_rows": 4952,
+  "linked_cells": 27,
+  "linked_trials": 10772,
+  "official_tasks_dropped": [],
+  "official_trials": 31890,
+  "official_with_verdict": 30993,
+  "rows": 52104,
+  "tasks": 89,
+  "trials": 47152
+ },
+ "design": {
+  "cells": 108,
+  "models": 36,
+  "scaffolds": 25,
+  "tasks": 89,
+  "trials": 46830,
+  "trials_per_task_cell": {
+   "1": 269,
+   "2": 9,
+   "3": 13,
+   "4": 195,
+   "5": 9032,
+   "6": 94
+  }
+ },
+ "heldout": {
+  "by_band": {
+   "high": {
+    "median_ratio": 0.944103,
+    "pairs": 232
+   },
+   "low": {
+    "median_ratio": 0.826935,
+    "pairs": 8
+   },
+   "mid": {
+    "median_ratio": 0.952149,
+    "pairs": 12
+   }
+  },
+  "by_comparison": {
+   "neither": {
+    "median_ratio": 0.926709,
+    "pairs": 212
+   },
+   "same-model": {
+    "median_ratio": 1.08724,
+    "pairs": 39
+   },
+   "same-scaffold": {
+    "median_ratio": 0.904783,
+    "pairs": 1
+   }
+  },
+  "cells": 39,
+  "median_ratio": 0.940869,
+  "pairs": 252,
+  "ratio_q05": 0.737346,
+  "ratio_q95": 1.18629,
+  "within_20pct": 0.829365
+ },
+ "infra": {
+  "by_exception": {
+   "AddTestsDirError": {
+    "passes": 0,
+    "trials": 4,
+    "verdicts": 0
+   },
+   "AgentSetupTimeoutError": {
+    "passes": 0,
+    "trials": 116,
+    "verdicts": 0
+   },
+   "AgentTimeoutError": {
+    "passes": 676,
+    "trials": 4266,
+    "verdicts": 4142
+   },
+   "BadRequestError": {
+    "passes": 0,
+    "trials": 10,
+    "verdicts": 0
+   },
+   "CancelledError": {
+    "passes": 0,
+    "trials": 8,
+    "verdicts": 0
+   },
+   "CommandExitException": {
+    "passes": 0,
+    "trials": 1,
+    "verdicts": 0
+   },
+   "DaytonaError": {
+    "passes": 0,
+    "trials": 33,
+    "verdicts": 0
+   },
+   "DownloadVerifierDirError": {
+    "passes": 0,
+    "trials": 4,
+    "verdicts": 0
+   },
+   "EnvironmentStartTimeoutError": {
+    "passes": 0,
+    "trials": 34,
+    "verdicts": 12
+   },
+   "InfraBootstrapFailure": {
+    "passes": 0,
+    "trials": 1,
+    "verdicts": 1
+   },
+   "InternalServerError": {
+    "passes": 0,
+    "trials": 3,
+    "verdicts": 0
+   },
+   "NonZeroAgentExitCodeError": {
+    "passes": 148,
+    "trials": 236,
+    "verdicts": 220
+   },
+   "NotFoundError": {
+    "passes": 0,
+    "trials": 1,
+    "verdicts": 0
+   },
+   "RewardFileNotFoundError": {
+    "passes": 0,
+    "trials": 8,
+    "verdicts": 0
+   },
+   "RuntimeError": {
+    "passes": 0,
+    "trials": 469,
+    "verdicts": 5
+   },
+   "TimeoutException": {
+    "passes": 0,
+    "trials": 1,
+    "verdicts": 0
+   },
+   "VerifierTimeoutError": {
+    "passes": 0,
+    "trials": 90,
+    "verdicts": 8
+   },
+   "none": {
+    "passes": 19188,
+    "trials": 26605,
+    "verdicts": 26605
+   }
+  },
+  "loss_max": 0.0985225,
+  "loss_median": 0.00423077,
+  "loss_sd": 0.0134641,
+  "no_verdict_rate": 0.0136305,
+  "no_verdict_rate_max": 0.14382,
+  "no_verdict_rate_median": 0.00898876,
+  "share_of_score_variance": 0.00440857,
+  "spearman": 0.99415,
+  "submissions": 60,
+  "timeout_rate": 0.143194,
+  "trials": 27145,
+  "variance_score_verdict": 0.0410509,
+  "variance_score_zero": 0.0411202
+ },
+ "integrity": {
+  "auc_named_low": 0.928404,
+  "flagged": [
+   "MAYA__Claude-4.5-sonnet",
+   "hookele__gpt5.1-codex-mini"
+  ],
+  "named_ranks": {
+   "Forge__GPT-5.4": 33,
+   "Forge__Gemini-3.1-Pro-Preview": 6,
+   "Forge__Opus-4.6": 9,
+   "OB-1_GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6": 27,
+   "OB-1_GPT-5.4-GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6": 3,
+   "pilot-real__claude-opus-4-6": 4
+  },
+  "units": 148
+ },
+ "interaction": {
+  "intervals": {
+   "task_model": [
+    0.0109095,
+    0.0198702
+   ],
+   "task_model_scaffold": [
+    0.007682,
+    0.0148862
+   ],
+   "task_scaffold": [
+    0.00774377,
+    0.0154473
+   ]
+  },
+  "values": {
+   "task_model": 0.0153959,
+   "task_model_scaffold": 0.0115297,
+   "task_scaffold": 0.0116734
+  }
+ },
+ "pairs": {
+  "all_cells": {
+   "all_pairs": {
+    "bh": 4636,
+    "holm": 3225,
+    "pairs": 5778,
+    "share_bh": 0.802354,
+    "share_holm": 0.558152,
+    "smallest_gap_bh": 0.0389513,
+    "smallest_gap_holm": 0.105618
+   },
+   "bh_05": 0,
+   "fixed_holm_05": 0,
+   "fixed_raw_05": 1,
+   "holm_05": 0,
+   "median_gap": 0.00449438,
+   "median_se_fixed": 0.0197829,
+   "median_se_ratio_k10": 0.903107,
+   "median_se_task": 0.0328255,
+   "pairs": 107,
+   "raw_05": 1,
+   "top": [
+    "forge/gemini-3.1-pro",
+    "Factory Droid/gpt-5.3-codex",
+    "simple_codex/gpt-5.3-codex",
+    "terminus-3-3/gemini-3.1-pro",
+    "terminus-3-3/claude-opus-4-6",
+    "judy/claude-opus-4-6",
+    "ruley/gpt-5.3-codex",
+    "Factory Droid/claude-opus-4-6",
+    "mux/gpt-5.3-codex",
+    "claude-code-enhanced/claude-opus-4-6"
+   ]
+  },
+  "board": [
+   {
+    "adjacent_all": 9.34579e-06,
+    "adjacent_all_se": 9.34579e-06,
+    "adjacent_best": 0.00416667,
+    "adjacent_best_se": 0.000395482,
+    "reps": 1000,
+    "tasks": 89,
+    "trials": 5
+   },
+   {
+    "adjacent_all": 0.0,
+    "adjacent_all_se": 0.0,
+    "adjacent_best": 0.00354167,
+    "adjacent_best_se": 0.000367643,
+    "reps": 1000,
+    "tasks": 89,
+    "trials": 10
+   },
+   {
+    "adjacent_all": 0.0,
+    "adjacent_all_se": 0.0,
+    "adjacent_best": 0.003625,
+    "adjacent_best_se": 0.000371536,
+    "reps": 1000,
+    "tasks": 89,
+    "trials": 20
+   },
+   {
+    "adjacent_all": 0.0,
+    "adjacent_all_se": 0.0,
+    "adjacent_best": 0.00154167,
+    "adjacent_best_se": 0.00024884,
+    "reps": 1000,
+    "tasks": 89,
+    "trials": 50
+   },
+   {
+    "adjacent_all": 9.34579e-05,
+    "adjacent_all_se": 2.94206e-05,
+    "adjacent_best": 0.0348333,
+    "adjacent_best_se": 0.000798731,
+    "reps": 1000,
+    "tasks": 150,
+    "trials": 5
+   },
+   {
+    "adjacent_all": 0.000401869,
+    "adjacent_all_se": 5.99824e-05,
+    "adjacent_best": 0.0445417,
+    "adjacent_best_se": 0.000808608,
+    "reps": 1000,
+    "tasks": 150,
+    "trials": 10
+   },
+   {
+    "adjacent_all": 0.00172897,
+    "adjacent_all_se": 0.000115574,
+    "adjacent_best": 0.078625,
+    "adjacent_best_se": 0.000858632,
+    "reps": 1000,
+    "tasks": 300,
+    "trials": 5
+   }
+  ],
+  "scaffold_best": {
+   "all_pairs": {
+    "bh": 217,
+    "holm": 129,
+    "pairs": 325,
+    "share_bh": 0.667692,
+    "share_holm": 0.396923,
+    "smallest_gap_bh": 0.0651685,
+    "smallest_gap_holm": 0.119101
+   },
+   "bh_05": 0,
+   "cells": [
+    "forge/gemini-3.1-pro",
+    "Factory Droid/gpt-5.3-codex",
+    "simple_codex/gpt-5.3-codex",
+    "terminus-3-3/gemini-3.1-pro",
+    "judy/claude-opus-4-6",
+    "ruley/gpt-5.3-codex",
+    "mux/gpt-5.3-codex",
+    "claude-code-enhanced/claude-opus-4-6",
+    "deepagent-harbor/gpt-5.2-codex",
+    "sage/gemini-3-pro",
+    "terminus-2/gpt-5.3-codex",
+    "ante/gemini-3-pro",
+    "Junie/gemini-3-flash",
+    "codex/gpt-5.2",
+    "ii-agent-simple/gemini-3-pro",
+    "letta-code/claude-opus-4-5",
+    "claude-code/claude-opus-4-6",
+    "goose/claude-opus-4-5",
+    "openhands/claude-opus-4-5",
+    "opencode/claude-opus-4-5",
+    "gemini-cli/gemini-3-flash@google",
+    "TerminalBenchAgent/claude-sonnet-4-5",
+    "final/claude-sonnet-4-5",
+    "mini-swe-agent/claude-sonnet-4-5",
+    "spoox-m/gpt-5-mini",
+    "aone-agent/qwen3-coder-480b"
+   ],
+   "fixed_holm_05": 3,
+   "fixed_raw_05": 4,
+   "holm_05": 0,
+   "median_gap": 0.0134831,
+   "median_se_fixed": 0.0192656,
+   "median_se_task": 0.034917,
+   "pairs": 25,
+   "raw_05": 2,
+   "top_is_final": false
+  },
+  "truth": {
+   "fitted_task_cell": 0.0496728,
+   "pseudo_count": 0.645171,
+   "task_cell_of_truth": 0.0525405
+  }
+ },
+ "reference_mde": {
+  "neither/high|t150|k10": {
+   "interval": [
+    0.064048,
+    0.0789676
+   ],
+   "mde": 0.0722648
+  },
+  "neither/high|t150|k5": {
+   "interval": [
+    0.0701734,
+    0.0847806
+   ],
+   "mde": 0.078191
+  },
+  "neither/high|t89|k10": {
+   "interval": [
+    0.0835269,
+    0.102984
+   ],
+   "mde": 0.0942427
+  },
+  "neither/high|t89|k5": {
+   "interval": [
+    0.0915153,
+    0.110565
+   ],
+   "mde": 0.101971
+  },
+  "neither/mid|t150|k10": {
+   "interval": [
+    0.0674812,
+    0.0804058
+   ],
+   "mde": 0.0746383
+  },
+  "neither/mid|t150|k5": {
+   "interval": [
+    0.0737232,
+    0.0865371
+   ],
+   "mde": 0.0807827
+  },
+  "neither/mid|t89|k10": {
+   "interval": [
+    0.0880042,
+    0.10486
+   ],
+   "mde": 0.0973381
+  },
+  "neither/mid|t89|k5": {
+   "interval": [
+    0.0961446,
+    0.112856
+   ],
+   "mde": 0.105351
+  },
+  "same-model/high|t150|k10": {
+   "interval": [
+    0.051186,
+    0.0654929
+   ],
+   "mde": 0.0589106
+  },
+  "same-model/high|t150|k5": {
+   "interval": [
+    0.0585803,
+    0.0721467
+   ],
+   "mde": 0.0658852
+  },
+  "same-model/high|t89|k10": {
+   "interval": [
+    0.0667532,
+    0.0854113
+   ],
+   "mde": 0.076827
+  },
+  "same-model/high|t89|k5": {
+   "interval": [
+    0.0763964,
+    0.0940887
+   ],
+   "mde": 0.0859228
+  },
+  "same-scaffold/high|t150|k10": {
+   "interval": [
+    0.0568446,
+    0.073137
+   ],
+   "mde": 0.0659018
+  },
+  "same-scaffold/high|t150|k5": {
+   "interval": [
+    0.0634023,
+    0.0791887
+   ],
+   "mde": 0.0720855
+  },
+  "same-scaffold/high|t89|k10": {
+   "interval": [
+    0.0741328,
+    0.0953802
+   ],
+   "mde": 0.0859445
+  },
+  "same-scaffold/high|t89|k5": {
+   "interval": [
+    0.0826849,
+    0.103272
+   ],
+   "mde": 0.0940088
+  }
+ },
+ "reml": {
+  "cell": 0.0356308,
+  "converged": true,
+  "residual": 0.0682241,
+  "task": 0.0764123,
+  "task_cell": 0.0496728
+ },
+ "run": {
+  "df": 72,
+  "df_residual": 6291,
+  "f": 0.775413,
+  "interval": [
+   0.0,
+   8.08523e-05
+  ],
+  "median_span_days": 2.11816,
+  "p_above": 0.919428,
+  "p_below": 0.0805719,
+  "sd_upper": 0.00899179,
+  "submissions": [
+   {
+    "df": 3,
+    "jobs": 4,
+    "ms_residual": 0.0599962,
+    "ms_run": 0.0103315,
+    "pass_rate": 0.754237,
+    "submission": "Capy__Claude-Opus-4.6",
+    "variance": -0.000562241
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0498738,
+    "ms_run": 0.0360383,
+    "pass_rate": 0.835214,
+    "submission": "Capy__GPT-5.5",
+    "variance": -0.000156334
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0605327,
+    "ms_run": 0.00339159,
+    "pass_rate": 0.817156,
+    "submission": "CodeBrain-1.5__GPT-5.3-Codex",
+    "variance": -0.000645662
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0764911,
+    "ms_run": 0.0879102,
+    "pass_rate": 0.704955,
+    "submission": "CodeBrain-1__GPT-5.3-Codex",
+    "variance": 0.000128666
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0794433,
+    "ms_run": 0.00898876,
+    "pass_rate": 0.622472,
+    "submission": "CodeBrain-1__Gemini-3-Pro-Preview",
+    "variance": -0.000791624
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0541241,
+    "ms_run": 0.0370787,
+    "pass_rate": 0.757303,
+    "submission": "Codelia__GPT-5.3-Codex",
+    "variance": -0.000191522
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.069919,
+    "ms_run": 0.0170455,
+    "pass_rate": 0.705215,
+    "submission": "Droid__Claude-Opus-4.6",
+    "variance": -0.000600836
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0544561,
+    "ms_run": 0.00786517,
+    "pass_rate": 0.773034,
+    "submission": "Droid__GPT-5.3-Codex",
+    "variance": -0.000523493
+   },
+   {
+    "df": 1,
+    "jobs": 2,
+    "ms_residual": 0.00561798,
+    "ms_run": 0.00561798,
+    "pass_rate": 0.870787,
+    "submission": "JJAgent__Multiple",
+    "variance": -3.89826e-20
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0833896,
+    "ms_run": 0.0326072,
+    "pass_rate": 0.725624,
+    "submission": "Judy__Claude-Opus-4.6",
+    "variance": -0.000577072
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0781728,
+    "ms_run": 0.20472,
+    "pass_rate": 0.813212,
+    "submission": "Judy__Gemini-3.1-Pro-Preview",
+    "variance": 0.00144625
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.103707,
+    "ms_run": 0.173814,
+    "pass_rate": 0.800459,
+    "submission": "LemonCode__GPT-5.3-Codex",
+    "variance": 0.000808147
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0729597,
+    "ms_run": 0.116024,
+    "pass_rate": 0.848758,
+    "submission": "LemonHarness_GPT-5.3-CodeX",
+    "variance": 0.000486602
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0540347,
+    "ms_run": 0.0449438,
+    "pass_rate": 0.719101,
+    "submission": "MAYA__Claude-4.6-opus",
+    "variance": -0.000102145
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0745276,
+    "ms_run": 0.041573,
+    "pass_rate": 0.665169,
+    "submission": "Mux__Claude-Opus-4.6",
+    "variance": -0.000370276
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0736977,
+    "ms_run": 0.0146067,
+    "pass_rate": 0.746067,
+    "submission": "Mux__GPT-5.3-Codex",
+    "variance": -0.000663943
+   },
+   {
+    "df": 3,
+    "jobs": 4,
+    "ms_residual": 0.043792,
+    "ms_run": 0.00259891,
+    "pass_rate": 0.852608,
+    "submission": "NexAU-AHE__gpt-5.5",
+    "variance": -0.000468103
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0570211,
+    "ms_run": 0.00342379,
+    "pass_rate": 0.794989,
+    "submission": "OpenSage__GPT-5.3-Codex",
+    "variance": -0.000610795
+   },
+   {
+    "df": 4,
+    "jobs": 5,
+    "ms_residual": 0.0503135,
+    "ms_run": 0.0227273,
+    "pass_rate": 0.657596,
+    "submission": "OpenSage__Gemini-3-Pro-Preview",
+    "variance": -0.00031348
+   },
+   {
+    "df": 1,
+    "jobs": 2,
+    "ms_residual": 0.0581529,
+    "ms_run": 0.221946,
+    "pass_rate": 0.634921,
+    "submission": "Terminus2__Claude-Opus-4.6",
+    "variance": 0.00186129
+   }
+  ],
+  "variance": -0.00016739
+ },
+ "scaffold": {
+  "all-models": {
+   "cells": 82.0,
+   "intervals": {
+    "tasks": {
+     "model": [
+      0.0266296,
+      0.0433398
+     ],
+     "scaffold_within_model": [
+      0.00184786,
+      0.0035301
+     ],
+     "share_scaffold": [
+      0.0510925,
+      0.0951013
+     ]
+    },
+    "tasks+models": {
+     "model": [
+      0.0168871,
+      0.0513784
+     ],
+     "scaffold_within_model": [
+      0.00132402,
+      0.00429735
+     ],
+     "share_scaffold": [
+      0.0336338,
+      0.153376
+     ]
+    }
+   },
+   "model": 0.0343303,
+   "models": 18.0,
+   "scaffold_within_model": 0.00215138,
+   "share_scaffold": 0.0589715,
+   "spans": {
+    "claude-haiku-4-5": {
+     "high": 0.355056,
+     "low": 0.139326,
+     "scaffolds": 5.0,
+     "span": 0.21573
+    },
+    "claude-opus-4-1": {
+     "high": 0.379775,
+     "low": 0.348315,
+     "scaffolds": 4.0,
+     "span": 0.0314607
+    },
+    "claude-opus-4-5": {
+     "high": 0.631461,
+     "low": 0.516854,
+     "scaffolds": 8.0,
+     "span": 0.114607
+    },
+    "claude-opus-4-6": {
+     "high": 0.747191,
+     "low": 0.579775,
+     "scaffolds": 7.0,
+     "span": 0.167416
+    },
+    "claude-sonnet-4-5": {
+     "high": 0.465169,
+     "low": 0.400562,
+     "scaffolds": 6.0,
+     "span": 0.0646067
+    },
+    "gemini-2.5-flash": {
+     "high": 0.170787,
+     "low": 0.154494,
+     "scaffolds": 4.0,
+     "span": 0.0162921
+    },
+    "gemini-2.5-pro": {
+     "high": 0.326404,
+     "low": 0.164045,
+     "scaffolds": 4.0,
+     "span": 0.16236
+    },
+    "gemini-3-flash": {
+     "high": 0.642697,
+     "low": 0.492135,
+     "scaffolds": 3.0,
+     "span": 0.150562
+    },
+    "gemini-3-pro": {
+     "high": 0.651685,
+     "low": 0.559551,
+     "scaffolds": 7.0,
+     "span": 0.0921348
+    },
+    "gpt-5": {
+     "high": 0.496067,
+     "low": 0.339326,
+     "scaffolds": 4.0,
+     "span": 0.156742
+    },
+    "gpt-5-codex": {
+     "high": 0.443258,
+     "low": 0.413483,
+     "scaffolds": 3.0,
+     "span": 0.0297753
+    },
+    "gpt-5-mini": {
+     "high": 0.348315,
+     "low": 0.222472,
+     "scaffolds": 5.0,
+     "span": 0.125843
+    },
+    "gpt-5-nano": {
+     "high": 0.114607,
+     "low": 0.0696629,
+     "scaffolds": 4.0,
+     "span": 0.0449438
+    },
+    "gpt-5.1-codex": {
+     "high": 0.577528,
+     "low": 0.368539,
+     "scaffolds": 3.0,
+     "span": 0.208989
+    },
+    "gpt-5.2": {
+     "high": 0.649438,
+     "low": 0.540449,
+     "scaffolds": 4.0,
+     "span": 0.108989
+    },
+    "gpt-5.3-codex": {
+     "high": 0.773034,
+     "low": 0.647191,
+     "scaffolds": 5.0,
+     "span": 0.125843
+    },
+    "grok-4": {
+     "high": 0.27191,
+     "low": 0.231461,
+     "scaffolds": 3.0,
+     "span": 0.0404494
+    },
+    "qwen3-coder-480b": {
+     "high": 0.27191,
+     "low": 0.238951,
+     "scaffolds": 3.0,
+     "span": 0.0329588
+    }
+   }
+  },
+  "crossed": {
+   "converged": true,
+   "df_residual": 47,
+   "interaction_upper": 0.00113274,
+   "model": 0.0261911,
+   "noise": 0.000469869,
+   "residual": 0.00160261,
+   "scaffold": 0.00147504
+  },
+  "frontier-models": {
+   "cells": 34.0,
+   "intervals": {
+    "tasks": {
+     "model": [
+      0.00179782,
+      0.00596237
+     ],
+     "scaffold_within_model": [
+      0.00134848,
+      0.00409613
+     ],
+     "share_scaffold": [
+      0.264124,
+      0.602581
+     ]
+    },
+    "tasks+models": {
+     "model": [
+      -0.00010108,
+      0.00702163
+     ],
+     "scaffold_within_model": [
+      0.00103812,
+      0.00490186
+     ],
+     "share_scaffold": [
+      0.231916,
+      1.0
+     ]
+    }
+   },
+   "model": 0.00335812,
+   "models": 6.0,
+   "scaffold_within_model": 0.00198751,
+   "share_scaffold": 0.371801,
+   "spans": {
+    "claude-opus-4-5": {
+     "high": 0.631461,
+     "low": 0.516854,
+     "scaffolds": 8.0,
+     "span": 0.114607
+    },
+    "claude-opus-4-6": {
+     "high": 0.747191,
+     "low": 0.579775,
+     "scaffolds": 7.0,
+     "span": 0.167416
+    },
+    "gemini-3-flash": {
+     "high": 0.642697,
+     "low": 0.492135,
+     "scaffolds": 3.0,
+     "span": 0.150562
+    },
+    "gemini-3-pro": {
+     "high": 0.651685,
+     "low": 0.559551,
+     "scaffolds": 7.0,
+     "span": 0.0921348
+    },
+    "gpt-5.2": {
+     "high": 0.649438,
+     "low": 0.540449,
+     "scaffolds": 4.0,
+     "span": 0.108989
+    },
+    "gpt-5.3-codex": {
+     "high": 0.773034,
+     "low": 0.647191,
+     "scaffolds": 5.0,
+     "span": 0.125843
+    }
+   }
+  },
+  "noise": 0.000469869,
+  "noise_fixed_tasks": 0.00020916
+ },
+ "sensitivity": {
+  "all-cells": {
+   "cell": 0.0352718,
+   "cells": 109,
+   "icc1": 0.606385,
+   "task": 0.0754285,
+   "task_cell": 0.0516252,
+   "trial": 0.0824727,
+   "trials": 47152
+  },
+  "cells-with-repeats": {
+   "cell": 0.0359992,
+   "cells": 105,
+   "icc1": 0.601028,
+   "task": 0.0757262,
+   "task_cell": 0.0492916,
+   "trial": 0.082989,
+   "trials": 46563
+  },
+  "verdicts-only": {
+   "cell": 0.0363577,
+   "cells": 105,
+   "icc1": 0.602067,
+   "task": 0.0758988,
+   "task_cell": 0.0492723,
+   "trial": 0.0827313,
+   "trials": 46138
+  },
+  "without-reward-hacked-cell": {
+   "cell": 0.0347126,
+   "cells": 107,
+   "icc1": 0.601683,
+   "task": 0.0768641,
+   "task_cell": 0.0491496,
+   "trial": 0.0834215,
+   "trials": 46385
+  }
+ },
+ "split_jobs": {
+  "rate": 0.03125,
+  "rejected": 5,
+  "splits": 160
+ },
+ "strata": {
+  "neither/all": {
+   "pairs": 1190,
+   "pass_rate": 0.428137,
+   "task_cell": 0.038599,
+   "task_cell_interval": [
+    0.031835,
+    0.0442874
+   ],
+   "trial": 0.086584,
+   "trial_interval": [
+    0.0768885,
+    0.0963236
+   ]
+  },
+  "neither/high": {
+   "pairs": 243,
+   "pass_rate": 0.650542,
+   "task_cell": 0.0408479,
+   "task_cell_interval": [
+    0.0307929,
+    0.0498712
+   ],
+   "trial": 0.0841023,
+   "trial_interval": [
+    0.0728055,
+    0.095465
+   ]
+  },
+  "neither/low": {
+   "pairs": 431,
+   "pass_rate": 0.260002,
+   "task_cell": 0.0314162,
+   "task_cell_interval": [
+    0.0241633,
+    0.0378928
+   ],
+   "trial": 0.0838023,
+   "trial_interval": [
+    0.070699,
+    0.0970151
+   ]
+  },
+  "neither/mid": {
+   "pairs": 516,
+   "pass_rate": 0.463838,
+   "task_cell": 0.0435394,
+   "task_cell_interval": [
+    0.0345834,
+    0.0513334
+   ],
+   "trial": 0.0900761,
+   "trial_interval": [
+    0.0780025,
+    0.102177
+   ]
+  },
+  "pooled/all": {
+   "pairs": 5778,
+   "pass_rate": 0.419748,
+   "task_cell": 0.0496728,
+   "task_cell_interval": [
+    0.0442712,
+    0.0537564
+   ],
+   "trial": 0.082989,
+   "trial_interval": [
+    0.074384,
+    0.0919158
+   ]
+  },
+  "same-model/all": {
+   "pairs": 149,
+   "pass_rate": 0.470161,
+   "task_cell": 0.0232031,
+   "task_cell_interval": [
+    0.0176552,
+    0.028154
+   ],
+   "trial": 0.082101,
+   "trial_interval": [
+    0.0730962,
+    0.091156
+   ]
+  },
+  "same-model/high": {
+   "pairs": 46,
+   "pass_rate": 0.660809,
+   "task_cell": 0.0245249,
+   "task_cell_interval": [
+    0.0169408,
+    0.0319032
+   ],
+   "trial": 0.0821,
+   "trial_interval": [
+    0.0703574,
+    0.0939291
+   ]
+  },
+  "same-model/low": {
+   "pairs": 43,
+   "pass_rate": 0.229619,
+   "task_cell": 0.0170287,
+   "task_cell_interval": [
+    0.0120772,
+    0.0215752
+   ],
+   "trial": 0.077971,
+   "trial_interval": [
+    0.0654386,
+    0.0905708
+   ]
+  },
+  "same-model/mid": {
+   "pairs": 60,
+   "pass_rate": 0.496386,
+   "task_cell": 0.0266147,
+   "task_cell_interval": [
+    0.018661,
+    0.0336401
+   ],
+   "trial": 0.0850617,
+   "trial_interval": [
+    0.0729516,
+    0.0973543
+   ]
+  },
+  "same-scaffold/all": {
+   "pairs": 251,
+   "pass_rate": 0.360854,
+   "task_cell": 0.0269256,
+   "task_cell_interval": [
+    0.0215358,
+    0.0317761
+   ],
+   "trial": 0.087358,
+   "trial_interval": [
+    0.0758093,
+    0.0990251
+   ]
+  },
+  "same-scaffold/high": {
+   "pairs": 19,
+   "pass_rate": 0.647221,
+   "task_cell": 0.0329171,
+   "task_cell_interval": [
+    0.0229448,
+    0.0418233
+   ],
+   "trial": 0.0804847,
+   "trial_interval": [
+    0.0684747,
+    0.0928801
+   ]
+  },
+  "same-scaffold/low": {
+   "pairs": 133,
+   "pass_rate": 0.260855,
+   "task_cell": 0.0238417,
+   "task_cell_interval": [
+    0.0178689,
+    0.0294255
+   ],
+   "trial": 0.0852924,
+   "trial_interval": [
+    0.0715266,
+    0.099211
+   ]
+  },
+  "same-scaffold/mid": {
+   "pairs": 99,
+   "pass_rate": 0.440237,
+   "task_cell": 0.0299188,
+   "task_cell_interval": [
+    0.0227125,
+    0.0364862
+   ],
+   "trial": 0.0914521,
+   "trial_interval": [
+    0.078141,
+    0.104837
+   ]
+  }
+ },
+ "twin": {
+  "cells": [
+   "gemini-cli/gemini-3-flash@Google",
+   "gemini-cli/gemini-3-flash@google"
+  ],
+  "gap": 0.0359551,
+  "se": 0.0309142
+ }
+}

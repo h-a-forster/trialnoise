@@ -1,0 +1,613 @@
+{
+ "counts": {
+  "cells": 109,
+  "duplicate_rows": 4952,
+  "linked_cells": 27,
+  "linked_trials": 10772,
+  "official_tasks_dropped": [],
+  "official_trials": 31890,
+  "official_with_verdict": 30993,
+  "rows": 52104,
+  "tasks": 89,
+  "trials": 47152
+ },
+ "dataset": {
+  "repo": "yoonholee/terminalbench-trajectories",
+  "revision": "04e8940f5b6736a7ce8d22224fe2f2af74163ed2",
+  "sha256": {
+   "train-00000-of-00002.parquet": "e95bc8dc9f3e1b2f3c6c383d0a060064205d87e93e9ac9541847d1c511effdfa",
+   "train-00001-of-00002.parquet": "00d61614054bedcbadda9974cef30fe1e07d1701e7126edfa210f99840ae99b2"
+  }
+ },
+ "official": {
+  "files": "job-level result.json only",
+  "repo": "harborframework/terminal-bench-2-leaderboard",
+  "revision": "572b2614be2c0cb2527e14f5b1e4026f1072e6c1"
+ },
+ "submissions": {
+  "0error-Ledger__Claude-Opus-4.7": {
+   "job_starts": [
+    "2026-05-12T05:22:13.731557",
+    "2026-05-12T05:22:13.731557"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Ante__Gemini-3-Pro-Preview": {
+   "job_starts": [
+    "2025-12-31T22:36:36.454602",
+    "2025-12-31T22:36:36.454602"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Ante__Gemini-3.1-Pro-Preview": {
+   "job_starts": [
+    "2026-02-20T19:31:45.114308",
+    "2026-02-20T19:31:45.114308"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "BashAgent__TermiGen-32B": {
+   "job_starts": [
+    "2026-03-17T07:22:04.530852",
+    "2026-03-17T07:22:04.530852"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Capy__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-03-11T00:44:51.807425",
+    "2026-03-11T16:13:55.713272"
+   ],
+   "jobs": 5,
+   "n_total": 385
+  },
+  "Capy__GPT-5.5": {
+   "job_starts": [
+    "2026-04-28T02:19:10.959766",
+    "2026-04-28T18:24:58.545786"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "ClaudeCode__GLM-4.7": {
+   "job_starts": [
+    "2026-02-06T13:08:08.980553",
+    "2026-02-06T13:08:08.980553"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "CodeBrain-1.5__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-03-25T23:09:30.210587",
+    "2026-03-28T12:07:30.312564"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "CodeBrain-1__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-02-08T11:01:20.705363",
+    "2026-02-09T14:06:10.750919"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "CodeBrain-1__Gemini-3-Pro-Preview": {
+   "job_starts": [
+    "2026-01-31T22:50:53.460007",
+    "2026-02-05T11:19:55.521131"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Codelia__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-03-19T13:21:42.687123",
+    "2026-03-21T12:12:20.817408"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Deep-Agents__GPT-5.2-Codex": {
+   "job_starts": [
+    "2026-02-10T17:50:43.548483",
+    "2026-02-10T17:50:43.548483"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Dirac__Gemini-3-Flash-Preview": {
+   "job_starts": [
+    "2026-04-19T13:37:10.601601",
+    "2026-04-19T13:37:10.601601"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Droid__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-01-29T03:21:49.327127",
+    "2026-01-30T02:21:35.477638"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Droid__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-02-16T17:43:22.338660",
+    "2026-02-22T10:19:11.531825"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Forge__GPT-5.4": {
+   "job_starts": [
+    "2026-03-07T04:54:03.767856",
+    "2026-03-07T04:54:03.767856"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Forge__Gemini-3.1-Pro-Preview": {
+   "job_starts": [
+    "2026-02-26T14:28:30.763588",
+    "2026-02-26T14:28:30.763588"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Forge__Opus-4.6": {
+   "job_starts": [
+    "2026-03-11T06:58:12.061039",
+    "2026-03-11T06:58:12.061039"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Gemini_CLI__Gemini-3-Flash-Preview": {
+   "job_starts": [
+    "2026-03-05T16:55:46.484742",
+    "2026-03-05T16:55:46.484742"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Gemini_CLI__Gemini-3.1-Pro-Preview": {
+   "job_starts": [
+    "2026-03-24T15:49:05.049528",
+    "2026-03-24T15:49:05.049528"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "IndusAGICodingAgent__MiniMax-M2.7": {
+   "job_starts": [
+    "2026-03-21T09:39:17.740529",
+    "2026-03-21T09:39:17.740529"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "IndusAGICodingAgent__gpt-5.3-codex": {
+   "job_starts": [
+    "2026-03-17T07:15:59.990811",
+    "2026-03-17T07:15:59.990811"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "JJAgent__Multiple": {
+   "job_starts": [
+    "2026-05-04T14:46:16.550277",
+    "2026-05-05T18:36:48.677240"
+   ],
+   "jobs": 2,
+   "n_total": 890
+  },
+  "Judy__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-02-10T18:07:36.927409",
+    "2026-02-13T00:57:17.101874"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Judy__Gemini-3.1-Pro-Preview": {
+   "job_starts": [
+    "2026-03-07T01:45:04.402132",
+    "2026-03-08T16:47:13.473673"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Junie_CLI__Gemini-3-Flash-Preview-Gemini-3.1-Pro-Preview-Claude-Opus-4.6-GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-03-06T12:25:20.482677",
+    "2026-03-06T12:25:20.482677"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "LemonCode__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-04-20T19:24:16.663591",
+    "2026-04-24T20:07:07.323663"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "LemonHarness_GPT-5.3-CodeX": {
+   "job_starts": [
+    "2026-04-25T23:23:18.276148",
+    "2026-04-29T10:54:17.463278"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "MAYA__Claude-4.5-sonnet": {
+   "job_starts": [
+    "2025-11-13T09:25:33.171503",
+    "2025-12-09T13:26:22.424863"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "MAYA__Claude-4.6-opus": {
+   "job_starts": [
+    "2026-02-27T16:49:01.374825",
+    "2026-03-09T08:44:49.524872"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Meta-Harness__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-03-25T23:08:45.444375",
+    "2026-03-25T23:08:45.444375"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Mux__Claude-Opus-4.5": {
+   "job_starts": [
+    "2026-01-16T00:15:07.091479",
+    "2026-01-16T00:15:07.091479"
+   ],
+   "jobs": 1,
+   "n_total": 89
+  },
+  "Mux__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-02-09T01:47:06.406380",
+    "2026-02-10T02:43:26.721632"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Mux__GPT-5.2": {
+   "job_starts": [
+    "2026-01-16T00:55:01.792820",
+    "2026-01-16T00:55:01.792820"
+   ],
+   "jobs": 1,
+   "n_total": 89
+  },
+  "Mux__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-02-11T13:01:28.903638",
+    "2026-02-12T13:28:43.314263"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "NexAU-AHE__gpt-5.5": {
+   "job_starts": [
+    "2026-05-02T06:13:15.260951",
+    "2026-05-06T17:14:44.853317"
+   ],
+   "jobs": 4,
+   "n_total": 445
+  },
+  "OB-1_GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-02-21T12:03:28.676433",
+    "2026-02-25T17:36:02.313615"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "OB-1_GPT-5.4-GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-03-06T15:35:07.325205",
+    "2026-03-10T12:20:21.313855"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "OpenCode__Claude-Opus-4.5": {
+   "job_starts": [
+    "2026-01-12T01:05:35.763578",
+    "2026-01-12T01:05:35.763578"
+   ],
+   "jobs": 1,
+   "n_total": 89
+  },
+  "OpenSage__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-03-04T17:15:17.393221",
+    "2026-03-08T01:10:22.983078"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "OpenSage__Gemini-3-Pro-Preview": {
+   "job_starts": [
+    "2026-01-23T08:25:45.386378",
+    "2026-02-12T20:47:39.068644"
+   ],
+   "jobs": 5,
+   "n_total": 445
+  },
+  "Polaris__Claude-Opus-4.7-GPT-5.5-Gemini-3.1-Pro": {
+   "job_starts": [
+    "2026-05-06T19:31:13.146320",
+    "2026-05-06T19:31:13.146320"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Simplai-Agent__Claude-Sonnet-4.6": {
+   "job_starts": [
+    "2026-04-17T10:05:09.239317",
+    "2026-04-17T10:05:09.239317"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Simple-Codex__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-02-05T09:16:39.152261",
+    "2026-02-05T09:16:39.152261"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus-KIRA__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-02-13T11:48:54.854331",
+    "2026-02-13T11:48:54.854331"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus-KIRA__Gemini-3.1-Pro-Preview": {
+   "job_starts": [
+    "2026-02-20T11:30:32.204287",
+    "2026-02-20T11:30:32.204287"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__Claude-Opus-4.6": {
+   "job_starts": [
+    "2026-02-05T16:08:29.167428",
+    "2026-02-05T23:02:53.663444"
+   ],
+   "jobs": 2,
+   "n_total": 445
+  },
+  "Terminus2__DeepSeek-V3.2": {
+   "job_starts": [
+    "2026-02-07T07:47:43.790426",
+    "2026-02-07T07:47:43.790426"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__GLM-4.7": {
+   "job_starts": [
+    "2026-01-27T08:38:07.017317",
+    "2026-01-27T08:38:07.017317"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__GLM-5": {
+   "job_starts": [
+    "2026-02-14T13:57:51.299228",
+    "2026-02-14T13:57:51.299228"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-02-04T21:18:43.482053",
+    "2026-02-04T21:18:43.482053"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__Kimi-k2.5": {
+   "job_starts": [
+    "2026-01-27T22:25:42.729285",
+    "2026-01-27T22:25:42.729285"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Terminus2__Minimax-m2.5": {
+   "job_starts": [
+    "2026-02-17T21:51:32.484264",
+    "2026-02-17T21:51:32.484264"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "WOZCODE__Claude-Opus-4-7": {
+   "job_starts": [
+    "2026-04-19T15:58:26.325540",
+    "2026-04-19T15:58:26.325540"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "Wecode__GPT-5.5": {
+   "job_starts": [
+    "2026-04-30T06:28:13.843594",
+    "2026-04-30T06:28:13.843594"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "cchuter__minimax-m2.5": {
+   "job_starts": [
+    "2026-03-08T22:02:04.975101",
+    "2026-03-08T22:02:04.975101"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "clnkr__GPT-5.5": {
+   "job_starts": [
+    "2026-05-06T22:22:40.188760",
+    "2026-05-06T22:22:40.188760"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "copilot-cli__claude-opus-4.6": {
+   "job_starts": [
+    "2026-04-02T18:13:37.417249",
+    "2026-04-02T18:13:37.417249"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "dakou__qwen3-coder-480b": {
+   "job_starts": [
+    "2025-12-26T00:05:22.067211",
+    "2025-12-26T00:05:22.067211"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "grok-cli__grok-4.20-0309-reasoning": {
+   "job_starts": [
+    "2026-04-01T13:29:24.046124",
+    "2026-04-01T22:29:42.748510"
+   ],
+   "jobs": 3,
+   "n_total": 812
+  },
+  "harness-agent__minimax-m2-7-highspeed": {
+   "job_starts": [
+    "2026-04-27T02:11:42.201567",
+    "2026-04-27T02:11:42.201567"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "hookele__gpt5.1-codex-mini": {
+   "job_starts": [
+    "2026-01-15T14:18:07.814417",
+    "2026-02-06T18:43:38.888805"
+   ],
+   "jobs": 70,
+   "n_total": 445
+  },
+  "just-another-coding-agent__GLM-5": {
+   "job_starts": [
+    "2026-03-27T22:55:30.660498",
+    "2026-04-04T20:05:12.316692"
+   ],
+   "jobs": 15,
+   "n_total": 445
+  },
+  "little-coder__qwen3.5-9b": {
+   "job_starts": [
+    "2026-04-26T20:32:43.755213",
+    "2026-04-26T20:32:43.755213"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "little-coder__qwen3.6-35b-a3b": {
+   "job_starts": [
+    "2026-04-24T18:16:15.115763",
+    "2026-04-24T18:16:15.115763"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "logos-latest__claude-opus-4.7": {
+   "job_starts": [
+    "2026-04-21T14:02:19.155813",
+    "2026-04-21T14:02:19.155813"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "logos-ts__claude-opus-4.7": {
+   "job_starts": [
+    "2026-04-18T20:27:18.720958",
+    "2026-04-18T20:27:18.720958"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "logos__claude-opus-4.6": {
+   "job_starts": [
+    "2026-04-07T09:23:41.305560",
+    "2026-04-07T09:23:41.305560"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "pilot-real__claude-opus-4-6": {
+   "job_starts": [
+    "2026-03-25T23:32:56.929599",
+    "2026-03-25T23:32:56.929599"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "spoox-o-m__GPT-5-Nano": {
+   "job_starts": [
+    "2026-03-22T16:49:46.425607",
+    "2026-03-22T16:49:46.425607"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "spoox-o-m__GPT-5.3-Codex": {
+   "job_starts": [
+    "2026-03-15T21:10:02.977071",
+    "2026-03-15T21:10:02.977071"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "terminus-2__AfterQuery-GPT-OSS-20B": {
+   "job_starts": [
+    "2026-03-30T22:33:06.565165",
+    "2026-03-30T22:33:06.565165"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  },
+  "vix__claude-opus-4-7": {
+   "job_starts": [
+    "2026-04-30T17:57:23.992624",
+    "2026-04-30T17:57:23.992624"
+   ],
+   "jobs": 1,
+   "n_total": 445
+  }
+ }
+}
