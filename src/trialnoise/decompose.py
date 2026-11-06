@@ -11,13 +11,15 @@ them to the vendored `estimate`.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+import warnings
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from scipy import stats
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 from trialnoise._evalnoise.components import RunTerm, estimate
 from trialnoise._evalnoise.data import DataError
@@ -103,10 +105,10 @@ def moments(table: Layout) -> dict[str, float]:
 def statistics(m: dict[str, float], k: int = 5) -> dict[str, float]:
     """Shares and intraclass correlations of one set of components.
 
-    `icc1` is the correlation of two trials of one cell on one task, what repeating a trial
-    reproduces; `icc1_k` is the Spearman-Brown reliability of the mean of `k` trials; `icc_pair`
-    is the same correlation with the task main effect removed, which is what a paired comparison
-    of two cells can use.
+    `icc1` is the correlation of two trials of one cell on one task with the cell held fixed, what
+    repeating a trial of a chosen cell reproduces; `icc1_k` is the Spearman-Brown reliability of
+    the mean of `k` trials; `icc_pair` is the same correlation with the task main effect removed,
+    which is what a paired comparison of two cells can use.
     """
     total = sum(m[name] for name in TERMS)
     out = {f"share_{name}": m[name] / total for name in TERMS}
@@ -216,7 +218,9 @@ def cell_noise(table: Layout) -> tuple[np.ndarray, np.ndarray]:
     A cell with no repeats borrows the pooled trial variance.
     """
     df = (table.n - 1).sum(axis=1)
-    pooled = float(table.ss.sum()) / float((table.n - 1).sum())
+    if df.sum() <= 0:
+        raise DataError("no task-cell has two trials: trial noise is not identified")
+    pooled = float(table.ss.sum()) / float(df.sum())
     with np.errstate(divide="ignore", invalid="ignore"):
         within = np.where(df > 0, table.ss.sum(axis=1) / df, pooled)
     return within, within * (1.0 / table.n).mean(axis=1)
@@ -276,7 +280,26 @@ def stratum_vector(table: Layout, strata: dict[str, np.ndarray]) -> np.ndarray:
     return np.array(out)
 
 
-def interaction_structure(s: dict[str, float]) -> dict[str, float]:
+def resampled_strata(
+    cells: tuple[str, ...], strata: dict[str, np.ndarray]
+) -> Callable[[Layout], np.ndarray]:
+    """`stratum_vector` for a table whose rows may be a resample of `cells`.
+
+    Each stratum stays the set of pairs chosen on the full table. A cell drawn twice brings its
+    pairs twice; a cell paired with its own copy belongs to no stratum.
+    """
+    position = {cell: j for j, cell in enumerate(cells)}
+    symmetric = {name: mask | mask.T for name, mask in strata.items()}
+
+    def stat(table: Layout) -> np.ndarray:
+        rows = [position[cell] for cell in table.cells]
+        grid = np.ix_(rows, rows)
+        return stratum_vector(table, {k: np.triu(m[grid], 1) for k, m in symmetric.items()})
+
+    return stat
+
+
+def interaction_structure(s: Mapping[str, float]) -> dict[str, float]:
     """Split task x cell by what the near pairs of each comparison type share.
 
     With `v_ta = alpha_t,model + beta_t,scaffold + gamma_t,model,scaffold`, same-model pairs measure
@@ -288,6 +311,22 @@ def interaction_structure(s: dict[str, float]) -> dict[str, float]:
         "task_scaffold": neither - scaffold,
         "task_model_scaffold": model + scaffold - neither,
     }
+
+
+def banded_structure(s: Mapping[str, float]) -> dict[str, dict[str, float]]:
+    """`interaction_structure` within each pass-rate band, and its mean over the bands.
+
+    `s` holds a value per `comparison/band`. On the probability scale task x cell moves with the
+    pass rate, and the comparison types sit at different pass rates, so their differences are only
+    comparable inside a band.
+    """
+    out = {
+        band: interaction_structure({c: s[f"{c}/{band}"] for c in COMPARISONS})
+        for band, _, _ in BANDS
+    }
+    terms = out[BANDS[0][0]]
+    out["mean"] = {k: sum(part[k] for part in out.values()) / len(BANDS) for k in terms}
+    return out
 
 
 def scaffold_nesting(
@@ -336,9 +375,13 @@ def crossed_cells(score: np.ndarray, scaffolds: list[str], models: list[str]) ->
     so it bounds the run variance from above on this design's degrees of freedom.
     """
     design = pd.DataFrame({"y": score, "s": scaffolds, "m": models, "group": 1})
-    fit = sm.MixedLM.from_formula(
+    model = sm.MixedLM.from_formula(
         "y ~ 1", groups="group", vc_formula={"s": "0 + C(s)", "m": "0 + C(m)"}, data=design
-    ).fit(reml=True, method="lbfgs")
+    )
+    with warnings.catch_warnings():
+        # statsmodels warns of a boundary at any variance below 0.01, and these are all small.
+        warnings.simplefilter("ignore", ConvergenceWarning)
+        fit = model.fit(reml=True, method="lbfgs")
     vc = dict(zip(fit.model.exog_vc.names, np.asarray(fit.vcomp, float), strict=True))
     return {
         "scaffold": float(vc["s"]),
@@ -365,6 +408,8 @@ def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ..
         if len(jobs) < 2:
             continue
         g = group[group["job"].isin(jobs)]
+        if g["reward"].nunique() < 2:
+            continue  # Never a pass, or never a failure: no residual to set the jobs against.
         frame = pd.DataFrame(
             {
                 "item": g["task"].to_numpy(),
@@ -393,6 +438,8 @@ def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ..
     pooled = RunTerm.pool(terms)
     f = (pooled.ss / pooled.df) / (pooled.rss / pooled.df_res)
     lo, hi = pooled.interval(max_var=0.25)
+    if math.isnan(hi):
+        raise DataError("replicate jobs agree too closely for any run variance: look for copies")
     return {
         "df": pooled.df,
         "df_residual": pooled.df_res,

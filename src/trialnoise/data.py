@@ -16,7 +16,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import numpy as np
@@ -52,8 +52,19 @@ COLUMNS = [
 # Dirac's submission spells this task's folder differently.
 TASK_ALIASES = {"install-windows-3-11": "install-windows-3.11"}
 EXPECTED = {"rows": 52_104, "trials": 47_152, "tasks": 89, "cells": 109}
-ROOT = Path(__file__).resolve().parents[2]
-CONFIG = ROOT / "configs" / "official.toml"
+PACKAGE = Path(__file__).resolve().parent
+
+
+def shipped_root(package: Path = PACKAGE) -> Path:
+    """Where `configs/` and `results/` are: the checkout, or the copy a wheel carries."""
+    checkout = package.parents[1]
+    return checkout if (checkout / "configs" / "official.toml").exists() else package / "_bundled"
+
+
+SHIPPED = shipped_root()
+# Generated files go to the checkout, or to the working folder of an installed package.
+WORK = Path() if SHIPPED.name == "_bundled" else SHIPPED
+CONFIG = SHIPPED / "configs" / "official.toml"
 
 
 def sha256_file(path: Path) -> str:
@@ -71,30 +82,39 @@ def _get(url: str, attempts: int = 5) -> bytes | None:
         try:
             with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
                 return response.read()
-        except urllib.error.HTTPError as err:
-            if err.code == 404:
+        except (urllib.error.URLError, TimeoutError) as err:
+            code = getattr(err, "code", None)
+            if code == 404:
                 return None
             if attempt == attempts - 1:
                 raise
-            time.sleep(60 if err.code == 429 else 5 * (attempt + 1))
+            time.sleep(60 if code == 429 else 5 * (attempt + 1))
     raise AssertionError("unreachable")
 
 
 def fetch_parquet(raw_dir: Path, log: Callable[[str], None] = print) -> None:
-    """Download any missing shard at the pinned revision and check its hash."""
+    """Download any shard that is missing or fails its hash; only a good file gets its name."""
     raw_dir.mkdir(parents=True, exist_ok=True)
     for name, expected in SHARDS.items():
         path = raw_dir / name
-        if not path.exists():
+        if not path.exists() or sha256_file(path) != expected:
             url = f"https://huggingface.co/datasets/{DATASET}/resolve/{REVISION}/data/{name}"
             log(f"downloading {url}")
             part = path.with_suffix(".part")
             urllib.request.urlretrieve(url, part)  # noqa: S310 - fixed https URL
+            actual = sha256_file(part)
+            if actual != expected:
+                part.unlink()
+                raise DataError(f"{name}: sha256 {actual}, expected {expected}")
             os.replace(part, path)
-        actual = sha256_file(path)
-        if actual != expected:
-            raise DataError(f"{name}: sha256 {actual}, expected {expected}")
         log(f"ok {name}")
+
+
+def safe_name(name: str) -> str:
+    """A name from a remote listing, refused unless it is one plain path component."""
+    if name in ("", ".", "..") or PureWindowsPath(name).name != name:
+        raise DataError(f"unsafe name in the remote listing: {name!r}")
+    return name
 
 
 def fetch_official(out: Path, log: Callable[[str], None] = print) -> None:
@@ -110,7 +130,9 @@ def fetch_official(out: Path, log: Callable[[str], None] = print) -> None:
         raw = _get(f"{api}/{urllib.parse.quote(path)}?limit=1000")
         if raw is None:
             raise DataError(f"listing failed: {path}")
-        return [e["path"].rsplit("/", 1)[1] for e in json.loads(raw) if e["type"] == "directory"]
+        entries = json.loads(raw)
+        names = [e["path"].rsplit("/", 1)[1] for e in entries if e["type"] == "directory"]
+        return [safe_name(name) for name in names]
 
     for submission in folders(OFFICIAL_PREFIX):
         target = out / submission

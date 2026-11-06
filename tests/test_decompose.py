@@ -1,8 +1,10 @@
 import math
+import warnings
 
 import numpy as np
 import pandas as pd
 import pytest
+from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 from trialnoise import decompose as dc
 from trialnoise._evalnoise.components import estimate
@@ -115,6 +117,47 @@ def test_interaction_structure_recovers_its_three_sources():
     assert parts["task_model_scaffold"] == pytest.approx(0.1, abs=0.02)
 
 
+def test_band_matching_removes_the_pass_rate_mix_of_the_comparison_types():
+    """Task x cell grows with the pass rate; inside a band the two sources are equal."""
+    level = {"low": 0.01, "mid": 0.02, "high": 0.03}
+    s = {f"{c}/{b}": v for b, v in level.items() for c in ("same-model", "same-scaffold")}
+    s |= {f"neither/{b}": v + 0.01 for b, v in level.items()}
+    parts = dc.banded_structure(s)
+    assert parts["mean"]["task_model"] == pytest.approx(0.01)
+    assert parts["mean"]["task_scaffold"] == pytest.approx(0.01)
+    assert parts["mean"]["task_model_scaffold"] == pytest.approx(0.01)
+    # The unmatched contrast with same-scaffold pairs drawn mostly from the low band.
+    unmatched = dc.interaction_structure(
+        {"same-model": 0.02, "same-scaffold": 0.012, "neither": 0.03}
+    )
+    assert unmatched["task_scaffold"] > unmatched["task_model"]
+
+
+def test_resampled_strata_follow_cells_whatever_order_they_come_back_in():
+    table = _gaussian_table(7, a=5, t=30)
+    masks = {"x": np.zeros((5, 5), dtype=bool)}
+    masks["x"][1, 3] = True
+    masks["x"][2, 4] = True
+    stat = dc.resampled_strata(table.cells, masks)
+    assert stat(table) == pytest.approx(dc.stratum_vector(table, masks))
+    _, sigma2, _ = dc.pair_matrices(table)
+    # Cell 3 comes back before cell 1, and cell 1 twice: pair (1, 3) counts twice.
+    out = stat(table.take(np.array([3, 1, 1, 0])))
+    assert out[0] == pytest.approx(sigma2[1, 3])
+    # A pair absent from the resample leaves the stratum empty.
+    assert np.isnan(stat(table.take(np.array([0, 1, 2])))[0])
+
+
+def test_crossed_fit_does_not_warn_about_small_variances():
+    rng = np.random.default_rng(6)
+    scaffolds = [f"s{j}" for j in range(6) for _ in range(5)]
+    models = [f"m{j}" for _ in range(6) for j in range(5)]
+    score = 0.5 + rng.normal(0, 0.03, 30)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", ConvergenceWarning)
+        assert dc.crossed_cells(score, scaffolds, models)["df_residual"] == 20
+
+
 def test_nested_moments_recover_model_and_scaffold_terms():
     rng = np.random.default_rng(4)
     out = []
@@ -172,6 +215,24 @@ def test_run_term_refuses_copied_jobs_unless_they_are_skipped():
     with pytest.raises(DataError, match="copy"):
         dc.run_term(frame)
     assert dc.run_term(frame, skip=("copy",))["df"] == 4
+
+
+def test_run_term_fails_loudly_when_jobs_agree_too_closely_for_any_run_variance():
+    rows = []
+    for j in range(2):
+        for t in range(40):
+            y = float((t + j) % 2)  # Each job passes half the tasks, its partner the other half.
+            rows.append(
+                {"submission": "s", "status": "ok", "job": f"j{j}", "task": f"t{t}", "reward": y}
+            )
+    with pytest.raises(DataError, match="agree too closely"):
+        dc.run_term(pd.DataFrame(rows), min_tasks=40)
+
+
+def test_cell_noise_needs_a_repeat_somewhere():
+    table = dc.Layout(("a", "b"), ("t", "u"), np.eye(2), np.ones((2, 2)), np.zeros((2, 2)))
+    with pytest.raises(DataError, match="not identified"):
+        dc.cell_noise(table)
 
 
 def test_a_a_splits_reject_at_about_alpha_without_a_shock():

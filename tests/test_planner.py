@@ -56,14 +56,14 @@ def test_answer_refuses_what_it_cannot_plan():
         pl.answer(FIT, comparison="neither", **{**args, "target": "both"})
 
 
-def _heldout(seed: int, cells: int = 12) -> pd.DataFrame:
+def _heldout(seed: int, cells: int = 12, trials: int = 5) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     task = rng.normal(0, 0.25, 89)
     rows = []
     for c in range(cells):
         p = np.clip(0.7 + task + rng.normal(0, 0.03**0.5, 89), 0.02, 0.98)
         for t in range(89):
-            for _ in range(5):
+            for _ in range(trials):
                 rows.append(
                     {"submission": f"s{c}", "scaffold": f"s{c}", "model": f"m{c}", "task": f"t{t}",
                      "reward": float(rng.random() < p[t])}
@@ -79,6 +79,16 @@ def test_calibration_ratio_is_near_one_when_the_stratum_is_right():
     _, summary = pl.calibrate(_heldout(1), strata)
     assert summary["pairs"] > 20
     assert summary["median_ratio"] == pytest.approx(1.0, abs=0.15)
+
+
+def test_calibration_predicts_each_pair_at_its_own_trials():
+    strata = {  # Clipping leaves `_heldout` about 0.02 of task x cell.
+        f"neither/{band}": {"task_cell": 0.02, "trial": 0.15, "pass_rate": 0.7}
+        for band in ("low", "mid", "high")
+    }
+    table, summary = pl.calibrate(_heldout(2, cells=8, trials=20), strata)
+    assert table["trials"].to_numpy() == pytest.approx(20)
+    assert summary["median_ratio"] == pytest.approx(1.0, abs=0.1)
 
 
 def test_committed_planner_holds_the_spec_designs():

@@ -15,7 +15,8 @@ uv run ruff format --check .
 
 Tests must run offline, write only under pytest's `tmp_path`, use fixed seeds and pass on Windows.
 Statistical assertions state their tolerance in Monte Carlo standard errors. Mark tests that take
-more than a few seconds `@pytest.mark.slow`. A bug fix comes with a test that fails without it.
+more than a few seconds `@pytest.mark.slow`, except the fast study rerun, which is what ties CI to
+the committed results. A bug fix comes with a test that fails without it.
 
 ## Code
 

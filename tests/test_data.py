@@ -1,4 +1,6 @@
+import hashlib
 import json
+import urllib.error
 
 import pandas as pd
 import pytest
@@ -117,3 +119,79 @@ def test_every_official_folder_in_the_config_has_a_known_status():
     assert len(config) == 75
     allowed = {"ok", "cheating", "reward-hacking", "no-job-stats"}
     assert {row["status"] for row in config.values()} <= allowed
+
+
+def test_a_wheel_finds_its_own_copy_of_the_shipped_files(tmp_path):
+    checkout = tmp_path / "repo"
+    (checkout / "src" / "trialnoise").mkdir(parents=True)
+    (checkout / "configs").mkdir()
+    (checkout / "configs" / "official.toml").touch()
+    assert data.shipped_root(checkout / "src" / "trialnoise") == checkout
+    site = tmp_path / "venv" / "Lib" / "site-packages" / "trialnoise"
+    site.mkdir(parents=True)
+    assert data.shipped_root(site) == site / "_bundled"
+
+
+def test_linked_trials_must_agree_on_the_reward(tmp_path, monkeypatch):
+    monkeypatch.setattr(data, "EXPECTED", {"rows": 1, "trials": 1, "tasks": 1, "cells": 1})
+    (tmp_path / "raw").mkdir()
+    _shards(tmp_path / "raw", [_row("t__1", 1)])
+    _job(tmp_path / "official" / "Mux__GPT-5.2" / "job.json", {"1.0": ["t__1"]})
+    trials, _, manifest = data.build_tables(tmp_path / "raw", tmp_path / "official")
+    assert trials["job"].tolist() == ["job"]
+    assert manifest["counts"]["linked_trials"] == 1
+    _job(tmp_path / "official" / "Mux__GPT-5.2" / "job.json", {"0.0": ["t__1"]})
+    with pytest.raises(DataError, match="different rewards"):
+        data.build_tables(tmp_path / "raw", tmp_path / "official")
+
+
+def test_fetch_replaces_a_corrupt_shard_and_never_names_a_bad_download(tmp_path, monkeypatch):
+    good = b"good"
+    monkeypatch.setattr(data, "SHARDS", {"s.parquet": hashlib.sha256(good).hexdigest()})
+    served = [b"bad", good]
+    monkeypatch.setattr(
+        data.urllib.request, "urlretrieve", lambda _, part: part.write_bytes(served.pop(0))
+    )
+    (tmp_path / "s.parquet").write_bytes(b"truncated")
+    with pytest.raises(DataError, match="sha256"):
+        data.fetch_parquet(tmp_path, log=lambda _: None)
+    assert [p.name for p in tmp_path.iterdir()] == ["s.parquet"]
+    assert (tmp_path / "s.parquet").read_bytes() == b"truncated"
+    data.fetch_parquet(tmp_path, log=lambda _: None)
+    assert (tmp_path / "s.parquet").read_bytes() == good
+    data.fetch_parquet(tmp_path, log=lambda _: None)  # Nothing left to serve: no new download.
+
+
+class _Response:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return False
+
+    def read(self):
+        return b"body"
+
+
+def test_get_retries_a_dropped_connection(monkeypatch):
+    outcomes = [urllib.error.URLError("reset"), TimeoutError("slow"), _Response()]
+
+    def urlopen(*_, **__):
+        outcome = outcomes.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr(data.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(data.time, "sleep", lambda _: None)
+    assert data._get("https://huggingface.co/x") == b"body"
+
+
+@pytest.mark.parametrize("name", ["..", "a\\..\\..\\b", "C:evil", ""])
+def test_fetch_official_refuses_a_listed_name_that_leaves_its_folder(tmp_path, monkeypatch, name):
+    listing = json.dumps([{"type": "directory", "path": f"submissions/{name}"}]).encode()
+    monkeypatch.setattr(data, "_get", lambda _: listing)
+    out = tmp_path / "official"
+    with pytest.raises(DataError, match="unsafe name"):
+        data.fetch_official(out, log=lambda _: None)
+    assert list(out.iterdir()) == []

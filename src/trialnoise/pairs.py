@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -19,6 +20,11 @@ def scores(table: Layout) -> np.ndarray:
 
 def adjust(p: np.ndarray, method: str) -> np.ndarray:
     return multipletests(p, alpha=0.05, method=method)[1]
+
+
+def two_sided(gap: float, se: float, tail: Callable[[float], float]) -> float:
+    """p of a gap; with no noise at all, a gap is certain and no gap is no evidence."""
+    return float(2 * tail(abs(gap) / se)) if se > 0 else float(gap == 0)
 
 
 def fixed_task_se(table: Layout, a: int, b: int) -> float:
@@ -54,9 +60,9 @@ def adjacent(table: Layout, order: list[int], universe: str) -> pd.DataFrame:
                 "score_lower": float(score[b]),
                 "gap": gap,
                 "se_task": se,
-                "p_task": float(2 * stats.t.sf(abs(gap) / se, t - 1)),
+                "p_task": two_sided(gap, se, lambda x: stats.t.sf(x, t - 1)),
                 "se_fixed": se_fixed,
-                "p_fixed": float(2 * stats.norm.sf(abs(gap) / se_fixed)),
+                "p_fixed": two_sided(gap, se_fixed, stats.norm.sf),
             }
         )
     frame = pd.DataFrame(rows)

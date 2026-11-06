@@ -58,11 +58,18 @@ def trials_needed(r: Any, tasks: int, gap: float) -> int | None:
     return hi
 
 
-def stratum_rows(strata: dict[str, Any], run: dict[str, float]) -> tuple[list[dict], list[dict]]:
-    """The MDE grid and the trials and tasks a target gap needs, per stratum and run assumption."""
+def stratum_rows(
+    strata: dict[str, Any], run: dict[str, float] | None
+) -> tuple[list[dict], list[dict]]:
+    """The MDE grid and the trials and tasks a target gap needs, per stratum and run assumption.
+
+    With `run`, each row is repeated at its upper limit; that takes minutes, the rest seconds.
+    """
     grid: list[dict] = []
     needs: list[dict] = []
-    runs = (("none", 0.0, math.inf), ("upper", run["upper"], run["df"]))
+    runs = [("none", 0.0, math.inf)]
+    if run is not None:
+        runs.append(("upper", run["upper"], run["df"]))
     for name, stratum in strata.items():
         for target in TARGETS:
             for run_label, run_variance, run_df in runs:
@@ -110,17 +117,22 @@ def heldout_cells(official: pd.DataFrame, skip: tuple[str, ...]) -> pd.DataFrame
     return frame[frame["submission"].isin(complete)]
 
 
-def calibrate(
-    frame: pd.DataFrame, strata: dict[str, Any], *, trials: int = 5
-) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Planner-predicted against observed paired SE on near pairs of held-out submissions."""
-    means = frame.groupby(["submission", "task"])["reward"].mean().unstack("task")
+def calibrate(frame: pd.DataFrame, strata: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Planner-predicted against observed paired SE on near pairs of held-out submissions.
+
+    Each pair is predicted at its own design: the harmonic mean of its trials per task, which is
+    what the trial noise of a task's difference averages to.
+    """
+    grouped = frame.groupby(["submission", "task"])["reward"]
+    means = grouped.mean().unstack("task")
+    counts = grouped.size().unstack("task")
     meta = frame.drop_duplicates("submission").set_index("submission")
     names = list(means.index)
     rows = []
     for i, a in enumerate(names):
         for b in names[i + 1 :]:
-            d = (means.loc[a] - means.loc[b]).dropna().to_numpy()
+            shared = (means.loc[a] - means.loc[b]).dropna()
+            d = shared.to_numpy()
             score_a, score_b = float(means.loc[a].mean()), float(means.loc[b].mean())
             if abs(score_a - score_b) > NEAR_GAP or len(d) < 80:
                 continue
@@ -134,6 +146,8 @@ def calibrate(
             level = (score_a + score_b) / 2
             band = next(name for name, lo, hi in BANDS if lo <= level < hi)
             stratum = strata[f"{comparison}/{band}"]
+            per_task = counts.loc[[a, b], shared.index]
+            trials = 2 / float((1 / per_task).mean(axis=1).sum())
             predicted = se_difference(
                 resolve(components(stratum, "population"), run=0.0), Design(len(d), 1, trials)
             )
@@ -145,6 +159,7 @@ def calibrate(
                     "comparison": comparison,
                     "band": band,
                     "tasks": len(d),
+                    "trials": trials,
                     "gap": score_a - score_b,
                     "se_predicted": predicted,
                     "se_observed": observed,

@@ -84,11 +84,17 @@ logistic-normal model whose probability-scale components match the fit.
   and by the pair's mean pass rate: low (< 35%), mid, high (>= 60%).
 - **Interaction sources.** Same-model pairs measure task x scaffold plus the three-way term;
   same-scaffold pairs task x model plus the three-way term; pairs sharing neither measure all
-  three. The differences identify each, using near pairs so the types are comparable.
+  three. The differences identify each, using near pairs inside one pass-rate band so the types are
+  comparable: across bands they sit at different pass rates (same-scaffold pairs a mean 36%, same
+  model 47%), and task x cell moves with the pass rate. The headline is the mean over the three
+  bands.
 - **Nested.** One-way unbalanced random-effects ANOVA on (scaffold, model) scores, for models under
   at least three scaffolds. `noise` is `(task x cell, same-model) + trial noise of a mean`, over
   `T`: the sampling variance of one score against others on the same model. The share is
-  `scaffold / (scaffold + model)`, with a negative model term counted as zero.
+  `scaffold / (scaffold + model)`, with a negative model term counted as zero. The frontier subset
+  is models averaging at least 50%. That cut selects on the outcome, which shrinks the model term
+  and raises the share, so `frontier_sweep` repeats it at 40% to 60%; the scaffold SD is the part
+  that does not depend on the cut.
 - **Crossed.** MixedLM on the scores with crossed model and scaffold effects. Its residual, less
   `noise`, bounds model x scaffold plus any one-off submission effect.
 - **Run.** Each job is a run. Henderson III within each submission with at least two jobs on 80 or
@@ -98,15 +104,17 @@ logistic-normal model whose probability-scale components match the fit.
 ### Intervals
 
 Percentile bootstrap, 10,000 draws with seeds derived from the unit name. Two schemes for the
-components: tasks, and tasks and cells (Owen's pigeonhole bootstrap). Models and tasks for the
-nested term. Cells are not a random sample, so the wider scheme is the honest default, not an exact
-one. ICCs and shares get the same intervals.
+components, strata, interaction sources and MDEs: tasks, and tasks and cells (Owen's pigeonhole
+bootstrap). Each stratum stays the set of pairs chosen on the full table, and a pair counts as often
+as its two cells are drawn. Models and tasks for the nested term. Cells are not a random sample, so
+the wider scheme is the honest default, not an exact one. ICCs and shares get the same intervals.
 
 ### Estimands
 
-- Variance shares; ICC(1) `(task + task_cell) / (task + task_cell + trial)`; ICC(1,5) by
-  Spearman-Brown; and the same correlation without the task main effect, which is what a pair uses.
-  Per-cell one-way ICC(1) to compare with the LessWrong range.
+- Variance shares; ICC(1) `(task + task_cell) / (task + task_cell + trial)`, the correlation of two
+  trials with the cell held fixed (with cells random, `cell` joins the numerator and the total);
+  ICC(1,5) by Spearman-Brown; and the same correlation without the task main effect, which is what a
+  pair uses. Per-cell one-way ICC(1) to compare with the LessWrong range.
 - MDE for two cells, paired on tasks, 5% two-sided at 80% power, from evalnoise's `mde`, under each
   stratum and target, at 5 and 10 trials and 89 and 150 tasks, with intervals from the stratum
   bootstrap. Tasks and trials needed for 3, 5 and 10 points.
@@ -135,13 +143,37 @@ Monte Carlo units in `validate.py`, each written atomically and resumable:
 | `fixed-tasks` | Size and power of the fixed-task z-test |
 
 The held-out check is on real data and does not use simulation: strata from the trajectory table
-against paired SEs of submissions the dataset never saw.
+against paired SEs of submissions the dataset never saw, each pair predicted at the harmonic mean
+of its trials per task. The `planner-*` checks draw from the fitted components, so they test the
+planner's formula, not its fit to new data.
 
 ## Report
 
 `report.py` fills `report_text.py` from the committed outputs. `results/v1/report.sha256` is the hash
-of the rendered text, so a test can show regeneration is byte-identical from results alone.
-`trialnoise check` reruns the study from the committed tables and compares every output.
+of the rendered text, so a test can show regeneration is byte-identical from results alone. The prose
+states a few facts in words (one copied submission, six named ones, the top cell); `premises` refuses
+to render if a new data version breaks them.
+
+`trialnoise check` reruns the study from the committed tables and compares every output. So far that
+has run on Windows only: the `check` CI job repeats it on Linux, on manual dispatch. A fast test reruns
+the whole study path with next to no bootstrap draws and holds every point estimate to the committed
+value within 1e-4.
+
+## Audit findings not acted on as proposed
+
+Two independent audits ran on 2026-11-06. Their other findings are fixed; these were not, or not as
+proposed.
+
+| Finding | Decision |
+|---|---|
+| README quotes tasks-only MDE intervals | Not so: it quotes no MDE interval. The report's MDE table did, and now uses tasks and cells. |
+| Simulated-board rates fall from 5 to 50 trials | Not a defect: better ranking makes observed neighbours truly closer. No code change; the report now says the rates sit near Holm's family-wise floor. |
+| `report.fields` is covered only by a slow test | Not so: the fast report test calls it. The study path was the real gap. |
+| A smoke test on a synthetic table | A fast rerun on the committed tables instead. It also fails when a code change moves a committed number, which a synthetic table cannot. |
+| Fix the "best-per-scaffold includes the copied cell" universe | Kept: dropping it loses the post's 26 rows. The report and README now say so. The simulated board uses primary cells, so it has 24 pairs, and the report says that too. |
+| Make the report's "four of the six" and similar prose data-driven | Worded prose stays worded; `premises` fails loudly when its facts change. |
+| Locate results from the working folder or an environment variable | The wheel carries them, so an installed `power` works anywhere. |
+| Retry the parquet download | Left alone: a failed shard leaves no named file, so a rerun repairs it. |
 
 ## Not done
 

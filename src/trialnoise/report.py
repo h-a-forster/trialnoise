@@ -10,11 +10,13 @@ from typing import Any
 
 import pandas as pd
 
-from trialnoise.decompose import TERMS
+from trialnoise._evalnoise.data import DataError
+from trialnoise.decompose import BANDS, TERMS
 from trialnoise.report_text import TEMPLATE
 
 LABEL = {"task": "Task", "cell": "Cell", "task_cell": "Task x cell", "trial": "Trial"}
 STAMP = "report.sha256"
+TOP_CELL = "forge/gemini-3.1-pro"
 
 
 def pts(x: float, digits: int = 1) -> str:
@@ -63,11 +65,24 @@ def grid(planner: dict, stratum: str, target: str, tasks: int, trials: int, run=
     raise KeyError(key)
 
 
+def premises(s: dict, top_cell: str) -> None:
+    """Facts the prose states in words; a new data version must rewrite them, not inherit them."""
+    found = {
+        "one copied submission": len(s["data"]["copied_submissions"]) == 1,
+        "one copied cell": len(s["data"]["copied_cells"]) == 1,
+        "six named submissions": len(s["integrity"]["named_ranks"]) == 6,
+        f"{TOP_CELL} on top": top_cell == TOP_CELL,
+    }
+    failed = [name for name, holds in found.items() if not holds]
+    if failed:
+        raise DataError(f"the report's prose assumes {failed}; revise report_text.py")
+
+
 def tables(s: dict, p: dict, v: dict) -> dict[str, str]:
     """Every Markdown table of the report."""
     c = s["components"]
     values, both, tasks = c["values"], c["tasks_and_cells"], c["tasks"]
-    strata, ref = s["strata"], s["reference_mde"]
+    strata, ref, structure = s["strata"], s["reference_mde"], s["interaction"]
     best, every = s["pairs"]["scaffold_best"], s["pairs"]["all_cells"]
     nest_all, nest_top = s["scaffold"]["all-models"], s["scaffold"]["frontier-models"]
     out: dict[str, str] = {}
@@ -121,8 +136,21 @@ def tables(s: dict, p: dict, v: dict) -> dict[str, str]:
         ["Near pairs", "Pairs", "Task x cell", "95% CI"],
         [
             [name, strata[f"{name}/all"]["pairs"], f"{strata[f'{name}/all']['task_cell']:.4f}",
-             ci3(strata[f"{name}/all"]["task_cell_interval"])]
+             ci3(strata[f"{name}/all"]["task_cell_interval_tasks_and_cells"])]
             for name in ("same-model", "same-scaffold", "neither")
+        ],
+    )  # fmt: skip
+
+    def source(band: str, term: str) -> str:
+        value = structure["values"][f"{band}/{term}"]
+        return f"{value:.4f} ({ci3(structure['intervals']['tasks+cells'][f'{band}/{term}'])})"
+
+    out["structure"] = table(
+        ["Pass-rate band", "Task x model", "Task x scaffold", "Task x model x scaffold"],
+        [
+            [label, source(band, "task_model"), source(band, "task_scaffold"),
+             source(band, "task_model_scaffold")]
+            for label, band in (*((b, b) for b, _, _ in BANDS), ("Mean of the three", "mean"))
         ],
     )  # fmt: skip
 
@@ -139,6 +167,15 @@ def tables(s: dict, p: dict, v: dict) -> dict[str, str]:
          "95% CI, tasks and models", "95% CI, tasks only"],
         [nest_row(f"All {nest_all['models']:.0f}", nest_all),
          nest_row(f"{nest_top['models']:.0f} frontier", nest_top)],
+    )  # fmt: skip
+    out["sweep"] = table(
+        ["Models average at least", "Models", "Cells", "Model SD", "Scaffold-within-model SD",
+         "Scaffold share"],
+        [
+            [f"{pts(float(cut), 0)}%", f"{n['models']:.0f}", f"{n['cells']:.0f}", sd(n["model"]),
+             sd(n["scaffold_within_model"]), f"{pts(n['share_scaffold'])}%"]
+            for cut, n in s["scaffold"]["frontier_sweep"].items()
+        ],
     )  # fmt: skip
     out["pairs"] = table(
         ["Universe", "Adjacent pairs", "Median gap", "Median SE, tasks", "Separated: raw", "BH",
@@ -199,6 +236,7 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     best, every = s["pairs"]["scaffold_best"], s["pairs"]["all_cells"]
     nest_all, nest_top = s["scaffold"]["all-models"], s["scaffold"]["frontier-models"]
     crossed, structure, strata = s["scaffold"]["crossed"], s["interaction"], s["strata"]
+    sources, source_ci = structure["values"], structure["intervals"]["tasks+cells"]
     ref, board = s["reference_mde"], {(b["trials"], b["tasks"]): b for b in s["pairs"]["board"]}
     d, design = s["data"], s["design"]
     named = sorted(s["integrity"]["named_ranks"].items(), key=lambda kv: kv[1])
@@ -207,10 +245,12 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     hold = held["by_comparison"]
     cover = v["coverage"]["coverage"]
     p7, p88, fixed = v["pilot-7df"], v["pilot-88df"], v["fixed-tasks"]
-    head = v["planner-same-model-t89-k5"]
+    planned = [v[k] for k in v if k.startswith("planner-")]
+    sweep = s["scaffold"]["frontier_sweep"]
     sens = s["sensitivity"].values()
     timeouts = infra["by_exception"]["AgentTimeoutError"]
     top = pairs[pairs["universe"] == "all-cells"].iloc[0]
+    premises(s, top["upper"])
     trials_fixed_3 = need(p, "neither/high", "fixed", 0.03)["trials_at_89_tasks"]
     trials_fixed_5 = need(p, "neither/high", "fixed", 0.05)["trials_at_89_tasks"]
     cheap, dear = cost["cheapest_above_half"][0], cost["dearest"][0]
@@ -235,6 +275,7 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "icc1_ci": ci3(both["icc1"]),
         "icc5": f"{values['icc1_k']:.2f}",
         "icc5_ci": ci3(both["icc1_k"]),
+        "icc_random": f"{1 - values['share_trial']:.2f}",
         "icc_pair": f"{values['icc_pair']:.2f}",
         "icc_pair_ci": ci3(both["icc_pair"]),
         "icc_median": f"{per_cell['median']:.2f}",
@@ -250,12 +291,18 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "top_scaffold_sd": sd(nest_top["scaffold_within_model"]),
         "top_model_sd": sd(nest_top["model"]),
         "frontier": ", ".join(sorted(nest_top["spans"])),
-        "task_scaffold": f"{structure['values']['task_scaffold']:.4f}",
-        "task_scaffold_ci": ci3(structure["intervals"]["task_scaffold"]),
-        "task_model": f"{structure['values']['task_model']:.4f}",
-        "task_model_ci": ci3(structure["intervals"]["task_model"]),
-        "task_both": f"{structure['values']['task_model_scaffold']:.4f}",
-        "task_both_ci": ci3(structure["intervals"]["task_model_scaffold"]),
+        "sweep_low": pts(sweep["0.40"]["share_scaffold"]),
+        "sweep_high": pts(sweep["0.60"]["share_scaffold"]),
+        "sweep_model_low": sd(sweep["0.60"]["model"]),
+        "sweep_model_high": sd(sweep["0.40"]["model"]),
+        "sweep_scaffold_low": sd(min(n["scaffold_within_model"] for n in sweep.values())),
+        "sweep_scaffold_high": sd(max(n["scaffold_within_model"] for n in sweep.values())),
+        "task_scaffold": f"{sources['mean/task_scaffold']:.4f}",
+        "task_scaffold_ci": ci3(source_ci["mean/task_scaffold"]),
+        "task_model": f"{sources['mean/task_model']:.4f}",
+        "task_model_ci": ci3(source_ci["mean/task_model"]),
+        "task_gap": f"{sources['mean/model_minus_scaffold']:.4f}",
+        "task_gap_ci": ci3(source_ci["mean/model_minus_scaffold"]),
         "run_subs": len(run["submissions"]),
         "run_df": run["df"],
         "run_span": f"{run['median_span_days']:.0f}",
@@ -278,10 +325,13 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "held_neither": f"{hold['neither']['median_ratio']:.2f}",
         "held_neither_pairs": hold["neither"]["pairs"],
         "held_high_pairs": held["by_band"]["high"]["pairs"],
-        "sim_size": f"{head['size']['rate']:.3f}",
-        "sim_gain": f"{head['power_gain']['rate']:.2f}",
-        "sim_loss": f"{head['power_loss']['rate']:.2f}",
-        "sim_n": head["size"]["n"],
+        "sim_size_low": f"{min(c['size']['rate'] for c in planned):.3f}",
+        "sim_size_high": f"{max(c['size']['rate'] for c in planned):.3f}",
+        "sim_gain_low": f"{min(c['power_gain']['rate'] for c in planned):.2f}",
+        "sim_gain_high": f"{max(c['power_gain']['rate'] for c in planned):.2f}",
+        "sim_loss_low": f"{min(c['power_loss']['rate'] for c in planned):.2f}",
+        "sim_loss_high": f"{max(c['power_loss']['rate'] for c in planned):.2f}",
+        "sim_n": planned[0]["size"]["n"],
         "best_pairs": best["pairs"],
         "best_holm": best["holm_05"],
         "best_bh": best["bh_05"],
@@ -302,6 +352,8 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "board_10": f"{100 * board[(10, 89)]['adjacent_best']:.1f}",
         "board_150": f"{100 * board[(5, 150)]['adjacent_best']:.1f}",
         "board_300": f"{100 * board[(5, 300)]['adjacent_best']:.1f}",
+        "board_pairs": design["scaffolds"] - 1,
+        "board_floor": f"{5 / (design['scaffolds'] - 1):.1f}",
         "truth_inter": f"{s['pairs']['truth']['task_cell_of_truth']:.4f}",
         "truth_fitted": f"{s['pairs']['truth']['fitted_task_cell']:.4f}",
         "top_upper": top["upper"],
@@ -330,6 +382,7 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "units": s["integrity"]["units"],
         "flagged_n": len(flagged),
         "flagged": ", ".join(f"`{u}`" for u in flagged["unit"]),
+        "top_cell": TOP_CELL,
         "forge_score": pts(top["score_upper"]),
         "forge_rank": s["integrity"]["named_ranks"]["Forge__Gemini-3.1-Pro-Preview"],
         "rows": f"{d['rows']:,}",
@@ -404,6 +457,8 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     for name, stratum in (("same", "same-model/high"), ("neither", "neither/high")):
         for label, key in (("895", "t89|k5"), ("8910", "t89|k10"), ("1505", "t150|k5")):
             out[f"mde_{name}_{label}"] = pts(ref[f"{stratum}|{key}"]["mde"])
+    out["mde_same_ci"] = ci(ref["same-model/high|t89|k5"]["interval"])
+    out["mde_same_ci_tasks"] = ci(ref["same-model/high|t89|k5"]["interval_tasks"])
     return out
 
 

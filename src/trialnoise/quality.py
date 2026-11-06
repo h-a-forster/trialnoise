@@ -54,7 +54,8 @@ def infra_summary(table: pd.DataFrame, official: pd.DataFrame) -> dict[str, Any]
     verdict_variance = float(np.var(full["score_verdict"].to_numpy(), ddof=1))
     rho = stats.spearmanr(score, full["score_verdict"].to_numpy()).statistic
     by_type = (
-        official.assign(exception=official["exception"].fillna("none"))
+        official[official["submission"].isin(full["submission"])]
+        .assign(exception=lambda f: f["exception"].fillna("none"))
         .groupby("exception")
         .agg(
             trials=("reward", "size"),
@@ -181,7 +182,8 @@ def copied_submissions(official: pd.DataFrame) -> list[str]:
     """Submissions whose replicate jobs agree on every trial outcome of every task.
 
     Real agents vary from run to run. Identical outcomes across jobs mean the jobs do not hold
-    independent trials, so these jobs cannot estimate noise.
+    independent trials, so these jobs cannot estimate noise. An agent that never passes, or never
+    fails, repeats itself honestly, so it needs both outcomes to count.
     """
     out = []
     ok = official[official["reward"].notna()]
@@ -192,6 +194,6 @@ def copied_submissions(official: pd.DataFrame) -> list[str]:
         if (tasks >= 80).sum() < 2:
             continue
         spread = group.groupby("task")["reward"].agg(["min", "max"])
-        if (spread["min"] == spread["max"]).all():
+        if (spread["min"] == spread["max"]).all() and spread["max"].nunique() == 2:
             out.append(str(submission))
     return out

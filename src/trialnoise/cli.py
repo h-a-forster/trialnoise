@@ -16,11 +16,11 @@ import pandas as pd
 from trialnoise import __version__, data, decompose, pairs, planner, report, study, validate
 from trialnoise._evalnoise.data import DataError
 
-ROOT = Path(__file__).resolve().parents[2]
-RESULTS = ROOT / "results" / "v1"
-RAW = ROOT / "data" / "raw"
-OFFICIAL = ROOT / "data" / "official"
-UNITS = ROOT / "data" / "validate"
+RESULTS = data.SHIPPED / "results" / "v1"  # What the read-only commands answer from.
+OUTPUT = data.WORK / "results" / "v1"  # What the rebuilding commands write; never the wheel's copy.
+RAW = data.WORK / "data" / "raw"
+OFFICIAL = data.WORK / "data" / "official"
+UNITS = data.WORK / "data" / "validate"
 TABLES = ("trials.parquet", "official.parquet", "MANIFEST.json")
 OUTPUTS = (
     "components.csv", "cells.csv", "cost.csv", "heldout.csv", "infra.csv", "integrity.csv",
@@ -80,6 +80,8 @@ def cmd_pairs(args: argparse.Namespace) -> int:
         for name in (args.a, args.b):
             if name not in table.cells:
                 raise DataError(f"unknown cell {name}; see results/v1/cells.csv")
+        if args.a == args.b:
+            raise DataError("--a and --b name the same cell")
         order = [table.cells.index(args.a), table.cells.index(args.b)]
         row = pairs.adjacent(table, order, "chosen").iloc[0]
         print(
@@ -123,7 +125,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    report.write(args.results, ROOT / "REPORT.md")
+    report.write(args.results, data.WORK / "REPORT.md")
     return 0
 
 
@@ -154,10 +156,10 @@ def parser() -> argparse.ArgumentParser:
     top.add_argument("--version", action="version", version=__version__)
     sub = top.add_subparsers(dest="command", required=True)
 
-    def add(name: str, func, helptext: str) -> argparse.ArgumentParser:  # type: ignore[no-untyped-def]
+    def add(name: str, func, helptext: str, results: Path = RESULTS) -> argparse.ArgumentParser:  # type: ignore[no-untyped-def]
         p = sub.add_parser(name, help=helptext)
         p.set_defaults(func=func)
-        p.add_argument("--results", type=Path, default=RESULTS)
+        p.add_argument("--results", type=Path, default=results)
         return p
 
     p = add("components", cmd_components, "variance components of a trial table")
@@ -187,17 +189,17 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--raw", type=Path, default=RAW)
     p.add_argument("--official", type=Path, default=OFFICIAL)
 
-    p = add("extract", cmd_extract, "build the committed trial tables")
+    p = add("extract", cmd_extract, "build the committed trial tables", OUTPUT)
     p.add_argument("--raw", type=Path, default=RAW)
     p.add_argument("--official", type=Path, default=OFFICIAL)
 
-    add("study", cmd_study, "write every output under results/v1")
+    add("study", cmd_study, "write every output under results/v1", OUTPUT)
 
-    p = add("validate", cmd_validate, "Monte Carlo checks; resumes from data/validate")
+    p = add("validate", cmd_validate, "Monte Carlo checks; resumes from data/validate", OUTPUT)
     p.add_argument("--units", type=Path, default=UNITS)
     p.add_argument("--profile", choices=tuple(validate.PROFILES), default="full")
 
-    add("report", cmd_report, "write REPORT.md from results/v1")
+    add("report", cmd_report, "write REPORT.md from results/v1", OUTPUT)
     add("check", cmd_check, "rerun the study and compare every output byte for byte")
     return top
 
@@ -206,7 +208,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
         return args.func(args)
-    except DataError as err:
+    except (DataError, FileNotFoundError) as err:
         print(f"error: {err}", file=sys.stderr)
         return 2
 

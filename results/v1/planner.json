@@ -13905,10 +13905,18 @@
     0.031835,
     0.0442874
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.030918,
+    0.0455604
+   ],
    "trial": 0.086584,
    "trial_interval": [
     0.0768885,
     0.0963236
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0759734,
+    0.0972677
    ]
   },
   "neither/high": {
@@ -13919,10 +13927,18 @@
     0.0307929,
     0.0498712
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0289307,
+    0.0533569
+   ],
    "trial": 0.0841023,
    "trial_interval": [
     0.0728055,
     0.095465
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0696768,
+    0.0987457
    ]
   },
   "neither/low": {
@@ -13933,10 +13949,18 @@
     0.0241633,
     0.0378928
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0225247,
+    0.0398543
+   ],
    "trial": 0.0838023,
    "trial_interval": [
     0.070699,
     0.0970151
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0695041,
+    0.0987235
    ]
   },
   "neither/mid": {
@@ -13947,10 +13971,18 @@
     0.0345834,
     0.0513334
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0332918,
+    0.0528035
+   ],
    "trial": 0.0900761,
    "trial_interval": [
     0.0780025,
     0.102177
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0771971,
+    0.103133
    ]
   },
   "pooled/all": {
@@ -13961,10 +13993,18 @@
     0.0442712,
     0.0537564
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0427023,
+    0.0539787
+   ],
    "trial": 0.082989,
    "trial_interval": [
     0.074384,
     0.0919158
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0733342,
+    0.093123
    ]
   },
   "same-model/all": {
@@ -13975,10 +14015,18 @@
     0.0176552,
     0.028154
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0162474,
+    0.0301354
+   ],
    "trial": 0.082101,
    "trial_interval": [
     0.0730962,
     0.091156
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0710187,
+    0.0936024
    ]
   },
   "same-model/high": {
@@ -13989,10 +14037,18 @@
     0.0169408,
     0.0319032
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0135427,
+    0.0359224
+   ],
    "trial": 0.0821,
    "trial_interval": [
     0.0703574,
     0.0939291
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0653546,
+    0.100139
    ]
   },
   "same-model/low": {
@@ -14003,10 +14059,18 @@
     0.0120772,
     0.0215752
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.00966678,
+    0.0246563
+   ],
    "trial": 0.077971,
    "trial_interval": [
     0.0654386,
     0.0905708
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0594189,
+    0.0963032
    ]
   },
   "same-model/mid": {
@@ -14017,10 +14081,18 @@
     0.018661,
     0.0336401
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0162885,
+    0.037193
+   ],
    "trial": 0.0850617,
    "trial_interval": [
     0.0729516,
     0.0973543
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0715294,
+    0.0998684
    ]
   },
   "same-scaffold/all": {
@@ -14031,10 +14103,18 @@
     0.0215358,
     0.0317761
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0198176,
+    0.0337897
+   ],
    "trial": 0.087358,
    "trial_interval": [
     0.0758093,
     0.0990251
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.074665,
+    0.10014
    ]
   },
   "same-scaffold/high": {
@@ -14045,10 +14125,18 @@
     0.0229448,
     0.0418233
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0177412,
+    0.050521
+   ],
    "trial": 0.0804847,
    "trial_interval": [
     0.0684747,
     0.0928801
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0650701,
+    0.0968424
    ]
   },
   "same-scaffold/low": {
@@ -14059,10 +14147,18 @@
     0.0178689,
     0.0294255
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0157651,
+    0.0319507
+   ],
    "trial": 0.0852924,
    "trial_interval": [
     0.0715266,
     0.099211
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0694606,
+    0.101419
    ]
   },
   "same-scaffold/mid": {
@@ -14073,10 +14169,18 @@
     0.0227125,
     0.0364862
    ],
+   "task_cell_interval_tasks_and_cells": [
+    0.0202905,
+    0.0398074
+   ],
    "trial": 0.0914521,
    "trial_interval": [
     0.078141,
     0.104837
+   ],
+   "trial_interval_tasks_and_cells": [
+    0.0768064,
+    0.106131
    ]
   }
  }

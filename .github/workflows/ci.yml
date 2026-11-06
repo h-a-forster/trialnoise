@@ -63,6 +63,13 @@ jobs:
           uv pip install --python .venv-lowest --resolution lowest-direct . "pytest>=8" "statsmodels>=0.14.2"
           .venv-lowest/bin/python -m pytest
 
+      - name: Installed CLI, away from the checkout
+        if: matrix.python == '3.11'
+        run: |
+          cd "$RUNNER_TEMP"
+          "$GITHUB_WORKSPACE/.venv-lowest/bin/trialnoise" power --comparison same-model --band high --gap 3
+          "$GITHUB_WORKSPACE/.venv-lowest/bin/trialnoise" pairs --top 3
+
       - name: CLI smoke
         # bash on every OS: pwsh would only fail on the last line's exit code.
         shell: bash
@@ -70,3 +77,21 @@ jobs:
           uv run trialnoise --version
           uv run trialnoise power --comparison same-model --band high --gap 3
           uv run trialnoise pairs --top 3
+
+  check:
+    # About five minutes, so only on demand. Proves the byte-identical rerun away from Windows.
+    name: byte-identical rerun
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Rerun the study and compare every output
+        run: uv run trialnoise check

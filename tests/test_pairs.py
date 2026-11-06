@@ -39,6 +39,15 @@ def test_adjacent_tests_match_a_paired_t_test_and_adjust_over_pairs():
     assert (frame["p_task_holm"] >= frame["p_task_bh"]).all()
 
 
+def test_a_pair_with_no_noise_at_all_gets_a_p_value_not_a_crash():
+    same = _table([[2, 3, 1, 4], [2, 3, 1, 4]])
+    row = pr.adjacent(same, [0, 1], "u").iloc[0]
+    assert (row["p_task"], row["p_fixed"]) == (1.0, 1.0)
+    apart = _table([[5, 5, 5, 5], [0, 0, 0, 0]])
+    row = pr.adjacent(apart, [0, 1], "u").iloc[0]
+    assert (row["p_task"], row["p_fixed"]) == (0.0, 0.0)
+
+
 def test_fixed_task_se_is_the_trial_noise_of_the_gap():
     """Two arms with one known p per task: the SE should match the spread of simulated gaps."""
     rng = np.random.default_rng(2)

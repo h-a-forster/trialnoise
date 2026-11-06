@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from trialnoise import quality as ql
+from trialnoise.decompose import run_term
 from trialnoise.study import sensitivity
 
 
@@ -42,6 +43,31 @@ def _replicates(identical: bool):
 def test_copied_submissions_finds_jobs_that_never_disagree():
     assert ql.copied_submissions(_replicates(True)) == ["s"]
     assert ql.copied_submissions(_replicates(False)) == []
+
+
+def test_an_agent_that_never_passes_is_not_copied_and_adds_no_run_term():
+    frame = _replicates(True).assign(reward=0.0)
+    assert ql.copied_submissions(frame) == []
+    both = pd.concat([frame, _replicates(False).assign(submission="real")], ignore_index=True)
+    assert run_term(both)["df"] == 4
+
+
+def test_exception_counts_cover_the_same_submissions_as_the_rates():
+    rows = [("full", "a", "m", "ok", "j", f"t{j}", f"f{j}", 0.0, ql.TIMEOUT) for j in range(5)]
+    rows += [("full", "a", "m", "ok", "j", "t5", "f5", 1.0, None)]
+    rows += [("other", "a", "m", "cheating", "j", "t0", "o0", 0.0, ql.TIMEOUT)]
+    rows += [("spare", "a", "m", "ok", "j", "t0", "s0", 0.0, None)]
+    frame = _official(rows)
+    totals = {
+        "full": {"n_total": 400},
+        "other": {"n_total": 400},
+        "spare": {"n_total": 400},
+    }
+    table = ql.infra_table(frame, totals).assign(verdicts=400)
+    out = ql.infra_summary(
+        table[table["submission"] != "other"].assign(score_zero=[0.1, 0.2]), frame
+    )
+    assert out["by_exception"][ql.TIMEOUT]["trials"] == 5
 
 
 def test_cost_treats_an_unreported_cost_as_missing_and_pays_for_failures():

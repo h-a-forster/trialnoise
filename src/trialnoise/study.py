@@ -24,6 +24,7 @@ DRAWS = 10_000
 BOARD_REPS = 1_000
 BOARD_GRID = ((5, 89), (10, 89), (20, 89), (50, 89), (5, 150), (10, 150), (5, 300))
 FRONTIER = 0.5  # A model is at the frontier when its cells average at least this.
+FRONTIER_SWEEP = (0.4, 0.45, 0.5, 0.55, 0.6)  # The cut selects on the outcome, so it is varied.
 
 
 def seed_of(unit: str) -> int:
@@ -137,18 +138,14 @@ def fit_scaffold(
     noise = (same_model_interaction + float(dc.cell_noise(table)[1].mean())) / t
     noise_fixed = float(dc.cell_noise(table)[1].mean()) / t
 
-    def select(minimum: int, frontier: bool) -> np.ndarray:
+    def select(minimum: int, cut: float = 0.0) -> np.ndarray:
         size = pairs.groupby("model")["score"].transform("size").to_numpy()
         mean = pairs.groupby("model")["score"].transform("mean").to_numpy()
-        keep = size >= minimum
-        return keep & (mean >= FRONTIER) if frontier else keep
+        return (size >= minimum) & (mean >= cut)
 
     rows: list[dict] = []
     out: dict[str, Any] = {"noise": noise, "noise_fixed_tasks": noise_fixed}
-    for name, keep in (
-        ("all-models", select(3, False)),
-        ("frontier-models", select(3, True)),
-    ):
+    for name, keep in (("all-models", select(3)), ("frontier-models", select(3, FRONTIER))):
         y = pairs["score"].to_numpy()[keep]
         groups = model_of_pair[keep]
         point = dc.nested_moments(y, groups, noise)
@@ -189,6 +186,12 @@ def fit_scaffold(
         out[name]["spans"] = {
             m: {k: float(v) for k, v in row.items()} for m, row in spans.iterrows()
         }
+    out["frontier_sweep"] = {
+        f"{cut:.2f}": dc.nested_moments(
+            pairs["score"].to_numpy()[select(3, cut)], model_of_pair[select(3, cut)], noise
+        )
+        for cut in FRONTIER_SWEEP
+    }
     crossed = dc.crossed_cells(
         pairs["score"].to_numpy(), list(pairs["scaffold"]), list(pairs["model"])
     )
@@ -208,53 +211,71 @@ def fit_strata(table: dc.Layout, meta: pd.DataFrame) -> tuple[dict, list[dict], 
     strata = dc.near_masks(score, masks)
     names = list(strata)
     point = dc.stratum_vector(table, strata)
-    draws = dc.bootstrap_draws(
-        table, lambda x: dc.stratum_vector(x, strata), draws=DRAWS, seed=seed_of("strata")
-    )
+    stat = dc.resampled_strata(table.cells, strata)
+    schemes = {
+        "tasks": dc.bootstrap_draws(table, stat, draws=DRAWS, seed=seed_of("strata")),
+        "tasks+cells": dc.bootstrap_draws(
+            table, stat, draws=DRAWS, seed=seed_of("strata-both"), over_cells=True
+        ),
+    }
     level = (score[:, None] + score[None, :]) / 2
     out: dict[str, Any] = {}
     rows: list[dict] = []
     for j, name in enumerate(names):
         if not strata[name].any():
             continue
-        task_cell, trial = point[2 * j], point[2 * j + 1]
+        values = {"task_cell": point[2 * j], "trial": point[2 * j + 1]}
+        cis = {
+            label: {
+                "task_cell": dc.percentile(draws[:, 2 * j]),
+                "trial": dc.percentile(draws[:, 2 * j + 1]),
+            }
+            for label, draws in schemes.items()
+        }
         out[name] = {
             "pairs": int(strata[name].sum()),
             "pass_rate": float(level[strata[name]].mean()),
-            "task_cell": task_cell,
-            "task_cell_interval": dc.percentile(draws[:, 2 * j]),
-            "trial": trial,
-            "trial_interval": dc.percentile(draws[:, 2 * j + 1]),
+            "task_cell": values["task_cell"],
+            "task_cell_interval": cis["tasks"]["task_cell"],
+            "task_cell_interval_tasks_and_cells": cis["tasks+cells"]["task_cell"],
+            "trial": values["trial"],
+            "trial_interval": cis["tasks"]["trial"],
+            "trial_interval_tasks_and_cells": cis["tasks+cells"]["trial"],
         }
-        rows += component_rows(
-            f"stratum/{name}",
-            {"task_cell": task_cell, "trial": trial},
-            "tasks",
-            {
-                "task_cell": dc.percentile(draws[:, 2 * j]),
-                "trial": dc.percentile(draws[:, 2 * j + 1]),
-            },
-        )
-    # Each comparison's near pairs across bands split task x cell by source.
-    index = {name: j for j, name in enumerate(names)}
-    part = {c: f"{c}/all" for c in dc.COMPARISONS}
-    values = dc.interaction_structure({c: point[2 * index[part[c]]] for c in dc.COMPARISONS})
-    structure_draws = [
-        dc.interaction_structure({c: row[2 * index[part[c]]] for c in dc.COMPARISONS})
-        for row in draws
-    ]
+        for label, interval in cis.items():
+            rows += component_rows(f"stratum/{name}", values, label, interval)
+
+    def structure(row: np.ndarray) -> dict[str, float]:
+        parts = dc.banded_structure({name: row[2 * j] for j, name in enumerate(names)})
+        flat = {f"{band}/{k}": v for band, terms in parts.items() for k, v in terms.items()}
+        flat["mean/model_minus_scaffold"] = flat["mean/task_model"] - flat["mean/task_scaffold"]
+        return flat
+
+    # Sources of task x cell, by pass-rate band and averaged over the bands.
+    values = structure(point)
     terms = tuple(values)
-    arr = np.array([[d[k] for k in terms] for d in structure_draws])
-    cis = interval_map(arr, terms)
-    rows += component_rows("interaction", values, "tasks", cis)
-    structure = {"values": values, "intervals": cis}
-    return out, rows, {"structure": structure, "draws": draws, "names": names}
+    cis = {
+        label: interval_map(np.array([[structure(r)[k] for k in terms] for r in draws]), terms)
+        for label, draws in schemes.items()
+    }
+    for label, interval in cis.items():
+        rows += component_rows("interaction", values, label, interval)
+    return out, rows, {"structure": {"values": values, "intervals": cis}, **schemes, "names": names}
+
+
+def mde_interval(
+    draws: np.ndarray, j: int, s: dict[str, Any], trials: int, point: float
+) -> tuple[float, float]:
+    """The interval of an MDE whose stratum sits at position `j` of the bootstrap draws."""
+    variance = 2 * np.maximum(draws[:, 2 * j], 0) + 2 * draws[:, 2 * j + 1] / trials
+    scale = np.sqrt(variance / (2 * s["task_cell"] + 2 * s["trial"] / trials))
+    return dc.percentile(point * scale)
 
 
 def reference_mde(
     strata: dict[str, Any], fit: dict[str, Any], names: tuple[str, ...]
 ) -> dict[str, Any]:
-    """MDE with an interval at the spec's four designs, from the stratum bootstrap draws."""
+    """MDE with intervals at the spec's four designs, from the stratum bootstrap draws."""
     index = {name: j for j, name in enumerate(fit["names"])}
     out: dict[str, Any] = {}
     for name in names:
@@ -264,12 +285,11 @@ def reference_mde(
             d = pl.Design(tasks, 1, trials)
             point = pl.mde(r, d, alpha=pl.ALPHA, power=pl.POWER)
             j = index[name]
-            variance = (
-                2 * np.maximum(fit["draws"][:, 2 * j], 0) + 2 * fit["draws"][:, 2 * j + 1] / trials
-            )
-            scale = np.sqrt(variance / (2 * s["task_cell"] + 2 * s["trial"] / trials))
-            lo, hi = dc.percentile(point * scale)
-            out[f"{name}|t{tasks}|k{trials}"] = {"mde": point, "interval": [lo, hi]}
+            out[f"{name}|t{tasks}|k{trials}"] = {
+                "mde": point,
+                "interval": mde_interval(fit["tasks+cells"], j, s, trials, point),
+                "interval_tasks": mde_interval(fit["tasks"], j, s, trials, point),
+            }
     return out
 
 
@@ -409,8 +429,10 @@ def run_study(results: Path, log: Callable[[str], None] = print) -> dict[str, An
         "pass_rate": components["grand"],
         "task_cell": values["task_cell"],
         "task_cell_interval": components["tasks"]["task_cell"],
+        "task_cell_interval_tasks_and_cells": components["tasks_and_cells"]["task_cell"],
         "trial": values["trial"],
         "trial_interval": components["tasks"]["trial"],
+        "trial_interval_tasks_and_cells": components["tasks_and_cells"]["trial"],
     }
     log("strata done")
     scaffold_rows, scaffold = fit_scaffold(table, meta, strata["same-model/all"]["task_cell"])

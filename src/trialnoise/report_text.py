@@ -15,8 +15,8 @@ pass rate.
   other on tasks like these, no number of trials on 89 tasks is enough: {tasks_same_3} tasks at 5
   trials for two scaffolds on one model, {tasks_neither_3} when both differ. A 10-point gap on tasks
   like these is within reach of the current benchmark: {ten_low} to {ten_high} trials on 89 tasks.
-- **More tasks beat more trials.** At today's 89 x 5, a near pair in the top half of the board has
-  an MDE of {mde_same_895} to {mde_neither_895} points. Doubling the trials gives {mde_same_8910} to
+- **More tasks beat more trials.** At today's 89 x 5, a near pair with a pass rate of at least 60%
+  has an MDE of {mde_same_895} to {mde_neither_895} points. Doubling the trials gives {mde_same_8910} to
   {mde_neither_8910}. Going to 150 tasks at 5 trials gives {mde_same_1505} to {mde_neither_1505} for
   fewer trials. Trial noise is {trial_share_same}% of a same-model pair's task-level variance at 5
   trials; the rest is task x cell, which repeats cannot touch, so doubling trials removes only half
@@ -26,10 +26,13 @@ pass rate.
   ({icc1_ci}) and ICC(1,5) is {icc5} ({icc5_ci}).
 - **Scaffold against model depends on where you look.** Across the {nest_models} models seen under
   at least three scaffolds, scaffold-within-model is {nest_share}% of the variance of cell scores
-  ({nest_ci}): the model decides most of the score. Among the {top_models} frontier models it is
-  {top_share}% ({top_ci}), and the scaffold SD ({top_scaffold_sd} points) is close to the model SD
-  ({top_model_sd}). Scaffolds also reshape which tasks get solved about as much as models do: task x
-  scaffold {task_scaffold}, task x model {task_model}.
+  ({nest_ci}): the model decides most of the score. Among the {top_models} models whose cells
+  average at least 50% it is {top_share}% ({top_ci}), but that figure is set by the cut: {sweep_low}%
+  at 40% and {sweep_high}% at 60%. Selecting models on their score removes model variance. The
+  scaffold SD holds at {sweep_scaffold_low} to {sweep_scaffold_high} points at every cut, and the
+  model SD falls from {sweep_model_high} to {sweep_model_low}. Scaffolds reshape which tasks get
+  solved less than models do, though the data cannot rule out parity: within pass-rate bands, task x
+  scaffold is {task_scaffold} ({task_scaffold_ci}) and task x model {task_model} ({task_model_ci}).
 - **Run-to-run shifts are small here, and now measured.** {run_subs} submissions with replicate jobs
   give a pooled run variance on {run_df} df that estimates below zero, with an upper limit of
   {run_sd_upper} points of run SD, against evalnoise's 2.9 points (1.6 to 6.4) on 7 df. Allowing for
@@ -37,15 +40,17 @@ pass rate.
   submitter chose to publish, so an unselected rerun could vary more.
 - **The calculator holds out of sample.** On {held_pairs} near pairs among {held_cells} submissions
   the trajectory dataset never saw, observed paired SEs were a median {held_median} of the planner's
-  prediction, and {held_within}% were within 20% of it. In simulation from the fit, size was
-  {sim_size} and power at the planned MDE {sim_gain} (gain) and {sim_loss} (loss).
+  prediction, and {held_within}% were within 20% of it. Separately, simulation from the fit checks
+  the planner's test, not new data: size {sim_size_low} to {sim_size_high}, and power at the planned
+  MDE {sim_gain_low} to {sim_gain_high} for a gain and {sim_loss_low} to {sim_loss_high} for a loss.
 - **The LessWrong figure holds, and adjacent pairs are the wrong test.** With a task-clustered
   paired test, {best_holm} of {best_pairs} adjacent best-per-scaffold pairs separate at Holm 0.05
-  ({best_bh} at BH, {best_raw} unadjusted), against the post's 1 of 25. Over all {every_pairs}
-  adjacent cells it is {every_holm}, with a median gap of {every_gap} points. Doubling trials would
-  change nothing: a simulated board separates {board_5}% of best-per-scaffold pairs at 5 trials and
-  {board_10}% at 10. Whole-board pairs do separate: {every_share_holm}% of {every_all_pairs} at Holm,
-  none closer than {gap_holm} points.
+  ({best_bh} at BH, {best_raw} unadjusted), against the post's 1 of 25. That set keeps the copied
+  cell, to match the post's 26 rows. Over all {every_pairs} adjacent cells it is {every_holm}, with a
+  median gap of {every_gap} points. Doubling trials would change nothing: a simulated board separates
+  {board_5}% of best-per-scaffold pairs at 5 trials and {board_10}% at 10, near the {board_floor}%
+  that one rejected pair on one board in twenty gives. Whole-board pairs do separate:
+  {every_share_holm}% of {every_all_pairs} at Holm, none closer than {gap_holm} points.
 - **Lost verdicts are rare but uneven.** {nv_rate}% of trials in {nv_subs} complete official
   submissions ended with no verdict, which the leaderboard counts as a failure. That is {nv_share}%
   of the variance of their scores and costs a median {nv_loss} points, but up to {nv_loss_max} for
@@ -84,7 +89,8 @@ cell {df_inter}, trial {df_trial}.
 Use the first interval. The tasks-only bootstrap the plan called for holds cells fixed, and in
 simulation it covers the cell term only {cover_cell} of the time.
 
-ICC(1), the correlation of two trials of one cell on one task, is {icc1_long}. Per cell it has a
+ICC(1), the correlation of two trials of one cell on one task with the cell held fixed, is
+{icc1_long}. With cells treated as random the same correlation is {icc_random}. Per cell it has a
 median of {icc_median}, a 10th to 90th percentile range of {icc_q10} to {icc_q90} and a minimum of
 {icc_min}, close to the 0.5 to 0.8 in the LessWrong post. That reliability is high because tasks
 differ, and a paired comparison removes the task main effect: with it gone the same correlation is
@@ -102,10 +108,15 @@ how much less depends on what they share:
 
 {table_near}
 
-Reading the three as sums splits task x cell by source: task x model {task_model}
-({task_model_ci}), task x scaffold {task_scaffold} ({task_scaffold_ci}), and task x model x scaffold
-{task_both} ({task_both_ci}). So the planner uses strata. A plan from the pooled term would say
-{pooled_mde} points where a same-model pair at the top of the board has {same_mde}.
+Read as sums, the three split task x cell by source. The comparison types sit at different pass
+rates, and task x cell moves with the pass rate, so the split is taken inside each band:
+
+{table_structure}
+
+Averaged over the bands, task x model exceeds task x scaffold by {task_gap} ({task_gap_ci}): scaffolds
+look like the smaller source, but the interval does not exclude parity. So the planner uses strata.
+A plan from the pooled term would say {pooled_mde} points where a same-model pair in the high band
+has {same_mde}.
 
 ## Scaffold and model
 
@@ -119,6 +130,15 @@ a different question in each row. Across all models, the range of models dwarfs 
 gpt-oss-20b at 3%. Among frontier models, picking the model settles little more than picking the
 scaffold. "The harness matters more than the model" holds only in the second reading, and even
 there the interval is wide.
+
+The frontier row is defined by its cut, which selects models on the score being decomposed. The
+interval above does not cover that choice:
+
+{table_sweep}
+
+The share moves because the model SD shrinks as the range of models is cut. The scaffold SD barely
+moves, so it is the portable number: {sweep_scaffold_low} to {sweep_scaffold_high} points. Cuts of
+50% and 55% select the same models.
 
 Largest spans of one model across scaffolds:
 
@@ -156,10 +176,14 @@ nominal 5%; splits share jobs, so they are not independent).
 - **fixed**: the 89 tasks are the population, so only trial noise counts. "A beat B on this
   benchmark" means this.
 
-MDE in points at 5% two-sided and 80% power, population target, with bootstrap intervals, by tasks
-x trials:
+MDE in points at 5% two-sided and 80% power, population target, with intervals over tasks and
+cells, by tasks x trials:
 
 {table_mde}
+
+Near pairs share cells, so holding the cells fixed understates these intervals: {mde_same_ci_tasks}
+over tasks alone at same-model/high and 89 x 5, against {mde_same_ci}. Both schemes are in
+`reference_mde`.
 
 Tasks or trials needed. The last column is the fixed target; the others the population target.
 
@@ -173,9 +197,9 @@ about ${cost_five} per arm.
 ### Out of sample
 
 The strata were fitted on the trajectory table. {held_cells} later official submissions, complete
-and in good standing, were never used, and give {held_pairs} near pairs. Observed over predicted
-paired SE: median {held_median}, 5th to 95th percentile {held_q05} to {held_q95}, with {held_within}%
-within 20%. By comparison: same model {held_same} ({held_same_pairs} pairs), neither {held_neither}
+and in good standing, were never used, and give {held_pairs} near pairs, each predicted at its own
+trials per task. Observed over predicted paired SE: median {held_median}, 5th to 95th percentile
+{held_q05} to {held_q95}, with {held_within}% within 20%. By comparison: same model {held_same} ({held_same_pairs} pairs), neither {held_neither}
 ({held_neither_pairs} pairs). Later submissions are stronger, so nearly all of these pairs sit in
 the high band ({held_high_pairs} of {held_pairs}): the check says little about weak cells.
 
@@ -186,8 +210,9 @@ trial noise only.
 
 {table_pairs}
 
-The post gives no code, and its table cannot be rebuilt exactly: best-per-scaffold gives Opus 4.5
-four scaffolds as in the post, but Opus 4.6 three, not two, and no Haiku 4.5. Its 24 of 25 becomes
+The post gives no code, and its table cannot be rebuilt exactly: best-per-scaffold, which keeps
+the copied cell to match its 26 rows, gives Opus 4.5 four scaffolds as in the post, but Opus 4.6
+three, not two, and no Haiku 4.5. Its 24 of 25 becomes
 {best_noise} of {best_pairs} here. Of its 325 pairs, {best_unseparated_bh}% stay unseparated at BH,
 against 23% in the post, whose rows include the {dups} duplicates. The top adjacent pair in all
 cells, `{top_upper}` over `{top_lower}`, is {top_gap} points apart with an SE of {top_se}.
@@ -197,6 +222,10 @@ probabilities ({truth_inter} task x cell against the fitted {truth_fitted}), re-
 each time. Share of adjacent pairs separated at Holm 0.05:
 
 {table_board}
+
+The simulated board holds the primary cells, so best-per-scaffold has {board_pairs} pairs here. One
+rejected pair on one board in twenty is already {board_floor}%, so the rates at 89 tasks are near
+what Holm's 5% family-wise error allows: a board almost never separates any neighbour.
 
 With {every_cells} cells on a 75-point range, neighbours are too close for any design here. Doubling
 trials shrinks the median adjacent SE only to {se_ratio} of itself. Even 300 tasks reach
@@ -215,8 +244,8 @@ points, {nv_share}% of the variance of scores, and the rank correlation between 
 resource limits. The public job files show less, but a job file records only a trial's last attempt,
 and only the jobs a submitter kept, so these are lower bounds.
 
-`AgentTimeoutError` covers {timeout_rate}% of trials, and most keep a verdict ({timeout_verdicts} of
-{timeout_trials}; {timeout_passes} passed). It is a task limit, not an error, but a resource-starved
+`AgentTimeoutError` covers {timeout_rate}% of those trials, and most keep a verdict
+({timeout_verdicts} of {timeout_trials}; {timeout_passes} passed). It is a task limit, not an error, but a resource-starved
 environment would raise it too, which this data cannot separate. By submission: `infra.csv`.
 
 ## Cost per solved task
@@ -245,7 +274,7 @@ has 70 jobs split by task and no known problem. The organisers' integrity post n
 screen flags by itself only the most extreme case, and low noise is also what a strong, stable agent
 shows.
 
-`forge/gemini-3.1-pro`, the top cell at {forge_score}%, is one of those named (rank {forge_rank}).
+`{top_cell}`, the top cell at {forge_score}%, is one of those named (rank {forge_rank}).
 The organisers say its affected trials were rescored to 0. Both sources agree trial for trial at
 the pinned commits and it still tops the board, so neither appears to include that rescoring.
 Dropping it changes the components little (`components.csv`).
@@ -299,6 +328,7 @@ points.
   jobs are a median {run_span} days apart. Provider or version drift over months is a different
   quantity. The crossed-model residual,
   SD {crossed_inter_sd} points, is the only bound on it here.
+- The frontier rows select models on their score, so the scaffold share there depends on the cut.
 - Adjacent ranks are chosen from the same data they are tested on, which inflates gaps. That does
   not change the conclusion that they do not separate, but the fixed-task Holm count for
   best-per-scaffold pairs ({best_fixed_holm}) is exposed to it.

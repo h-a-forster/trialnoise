@@ -15,6 +15,8 @@ for how many trials and tasks a comparison needs.
   `ruff format` (line length 100), pytest. `[tool.uv] exclude-newer` keeps the lock on releases at
   least two weeks old; move it deliberately.
 - Runtime dependencies: numpy, scipy, pandas, pyarrow, statsmodels (MixedLM is part of the study).
+- The wheel force-includes `configs/` and `results/v1` as `trialnoise/_bundled`. `data.SHIPPED` finds
+  them in a checkout or a wheel; `data.WORK` is where generated files go, never the wheel's copy.
 - `src/trialnoise/_evalnoise/` is vendored: see `VENDORED.md`. Change evalnoise, then copy. Its
   tests are `tests/test_evalnoise_*.py`.
 - The study reads only `results/v1/trials.parquet` and `official.parquet`; `fetch` and `extract`
@@ -30,7 +32,7 @@ for how many trials and tasks a comparison needs.
   Commit the regenerated `results/v1/report.sha256` with any change to either.
 - `data/` and `tmp/` are gitignored. Never commit raw shards or job files.
 - Commits and PRs carry no generated-by trailers. CI runs only on pull requests and manual
-  dispatch (metered minutes).
+  dispatch (metered minutes); the Linux `check` job runs only on dispatch.
 - Release hygiene: no personal names, local user paths or machine details in committed files.
 - Statistical honesty: report sizes, seeds and intervals; say when a number is a bound; cells are
   submissions, not a sample; the integrity screen is exploratory and accuses nobody.

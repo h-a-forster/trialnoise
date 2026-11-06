@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
-authors = [{ name = "trialnoise contributors" }]
+authors = [{ name = "h-a-forster" }]
 keywords = [
     "llm evaluation", "agent evaluation", "variance components", "power analysis",
     "minimum detectable effect", "terminal-bench", "cluster bootstrap",
@@ -45,6 +45,11 @@ exclude-newer = "2026-10-16T00:00:00Z"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/trialnoise"]
+
+# An installed `power` or `pairs` answers from these; see `data.SHIPPED`.
+[tool.hatch.build.targets.wheel.force-include]
+"configs/official.toml" = "trialnoise/_bundled/configs/official.toml"
+"results/v1" = "trialnoise/_bundled/results/v1"
 
 [tool.hatch.build.targets.sdist]
 include = [
