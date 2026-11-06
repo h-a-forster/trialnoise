@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+# Scratch work
+tmp/
+# Downloads and validation units (rebuilt with `trialnoise fetch` and `trialnoise validate`)
+data/
