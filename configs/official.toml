@@ -1,0 +1,82 @@
+# Official leaderboard submissions at the commit pinned in data.py, one row per folder.
+# scaffold and model are normalised by hand from the folder name, the eval key and metadata.yaml.
+# model = "multiple" marks a submission that routes tasks to several models.
+# status: "ok", or why the submission is kept out of the held-out checks and the run term:
+#   reward-hacking, cheating: named in tbench.ai/news/leaderboard-integrity-update
+#   no-job-stats: the job result.json has no per-trial reward lists
+[submissions]
+"0error-Ledger__Claude-Opus-4.7" = { scaffold = "0error-ledger", model = "claude-opus-4-7", status = "ok" }
+"Ante__Gemini-3-Pro-Preview" = { scaffold = "ante", model = "gemini-3-pro", status = "ok" }
+"Ante__Gemini-3.1-Pro-Preview" = { scaffold = "ante", model = "gemini-3.1-pro", status = "ok" }
+"BashAgent__TermiGen-32B" = { scaffold = "bashagent", model = "termigen-32b", status = "ok" }
+"Capy__Claude-Opus-4.6" = { scaffold = "capy", model = "claude-opus-4-6", status = "ok" }
+"Capy__GPT-5.5" = { scaffold = "capy", model = "gpt-5.5", status = "ok" }
+"ClaudeCode__GLM-4.7" = { scaffold = "claude-code", model = "glm-4.7", status = "ok" }
+"CodeBrain-1.5__GPT-5.3-Codex" = { scaffold = "codebrain-1.5", model = "gpt-5.3-codex", status = "ok" }
+"CodeBrain-1__GPT-5.3-Codex" = { scaffold = "ruley", model = "gpt-5.3-codex", status = "ok" }
+"CodeBrain-1__Gemini-3-Pro-Preview" = { scaffold = "ruley", model = "gemini-3-pro", status = "ok" }
+"Codelia__GPT-5.3-Codex" = { scaffold = "codelia", model = "gpt-5.3-codex", status = "ok" }
+"Crux__Claude-Opus-4.6" = { scaffold = "crux", model = "claude-opus-4-6", status = "no-job-stats" }
+"Deep-Agents__GPT-5.2-Codex" = { scaffold = "deepagent-harbor", model = "gpt-5.2-codex", status = "ok" }
+"Dirac__Gemini-3-Flash-Preview" = { scaffold = "dirac", model = "gemini-3-flash", status = "ok" }
+"Droid__Claude-Opus-4.6" = { scaffold = "Factory Droid", model = "claude-opus-4-6", status = "ok" }
+"Droid__GPT-5.3-Codex" = { scaffold = "Factory Droid", model = "gpt-5.3-codex", status = "ok" }
+"Forge__GPT-5.4" = { scaffold = "forge", model = "gpt-5.4", status = "reward-hacking" }
+"Forge__Gemini-3.1-Pro-Preview" = { scaffold = "forge", model = "gemini-3.1-pro", status = "reward-hacking" }
+"Forge__Opus-4.6" = { scaffold = "forge", model = "claude-opus-4-6", status = "reward-hacking" }
+"Gemini_CLI__Gemini-3-Flash-Preview" = { scaffold = "gemini-cli", model = "gemini-3-flash", status = "ok" }
+"Gemini_CLI__Gemini-3.1-Pro-Preview" = { scaffold = "gemini-cli", model = "gemini-3.1-pro", status = "ok" }
+"IndusAGICodingAgent__MiniMax-M2.7" = { scaffold = "indusagi", model = "minimax-m2.7", status = "ok" }
+"IndusAGICodingAgent__gpt-5.3-codex" = { scaffold = "indusagi", model = "gpt-5.3-codex", status = "ok" }
+"JJAgent__Multiple" = { scaffold = "jjagent", model = "multiple", status = "ok" }
+"Judy__Claude-Opus-4.6" = { scaffold = "judy", model = "claude-opus-4-6", status = "ok" }
+"Judy__Gemini-3.1-Pro-Preview" = { scaffold = "judy", model = "gemini-3.1-pro", status = "ok" }
+"Junie_CLI__Gemini-3-Flash-Preview-Gemini-3.1-Pro-Preview-Claude-Opus-4.6-GPT-5.3-Codex" = { scaffold = "Junie", model = "multiple", status = "ok" }
+"LemonCode__GPT-5.3-Codex" = { scaffold = "lemoncode", model = "gpt-5.3-codex", status = "ok" }
+"LemonHarness_GPT-5.3-CodeX" = { scaffold = "lemonharness", model = "gpt-5.3-codex", status = "ok" }
+"MAYA__Claude-4.5-sonnet" = { scaffold = "final", model = "claude-sonnet-4-5", status = "ok" }
+"MAYA__Claude-4.6-opus" = { scaffold = "final", model = "claude-opus-4-6", status = "ok" }
+"Meta-Harness__Claude-Opus-4.6" = { scaffold = "meta-harness", model = "claude-opus-4-6", status = "ok" }
+"Mux__Claude-Opus-4.5" = { scaffold = "mux", model = "claude-opus-4-5", status = "ok" }
+"Mux__Claude-Opus-4.6" = { scaffold = "mux", model = "claude-opus-4-6", status = "ok" }
+"Mux__GPT-5.2" = { scaffold = "mux", model = "gpt-5.2", status = "ok" }
+"Mux__GPT-5.3-Codex" = { scaffold = "mux", model = "gpt-5.3-codex", status = "ok" }
+"NexAU-AHE__gpt-5.5" = { scaffold = "nexau", model = "gpt-5.5", status = "ok" }
+"OB-1_GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6" = { scaffold = "ob-1", model = "multiple", status = "cheating" }
+"OB-1_GPT-5.4-GPT-5.3-Codex-Claude-Opus-4.5-Claude-Opus-4.6" = { scaffold = "ob-1", model = "multiple", status = "cheating" }
+"OpenCode__Claude-Opus-4.5" = { scaffold = "opencode", model = "claude-opus-4-5", status = "ok" }
+"OpenSage__GPT-5.3-Codex" = { scaffold = "sage", model = "gpt-5.3-codex", status = "ok" }
+"OpenSage__Gemini-3-Pro-Preview" = { scaffold = "sage", model = "gemini-3-pro", status = "ok" }
+"Polaris__Claude-Opus-4.7-GPT-5.5-Gemini-3.1-Pro" = { scaffold = "polaris", model = "multiple", status = "ok" }
+"Simplai-Agent__Claude-Sonnet-4.6" = { scaffold = "simplai", model = "claude-sonnet-4-6", status = "ok" }
+"Simple-Codex__GPT-5.3-Codex" = { scaffold = "simple_codex", model = "gpt-5.3-codex", status = "ok" }
+"Terminus-KIRA__Claude-Opus-4.6" = { scaffold = "terminus-3-3", model = "claude-opus-4-6", status = "ok" }
+"Terminus-KIRA__Gemini-3.1-Pro-Preview" = { scaffold = "terminus-3-3", model = "gemini-3.1-pro", status = "ok" }
+"Terminus2__Claude-Opus-4.6" = { scaffold = "terminus-2", model = "claude-opus-4-6", status = "ok" }
+"Terminus2__DeepSeek-V3.2" = { scaffold = "terminus-2", model = "deepseek-v3.2", status = "ok" }
+"Terminus2__GLM-4.7" = { scaffold = "terminus-2", model = "glm-4.7", status = "ok" }
+"Terminus2__GLM-5" = { scaffold = "terminus-2", model = "glm-5", status = "ok" }
+"Terminus2__GPT-5.3-Codex" = { scaffold = "terminus-2", model = "gpt-5.3-codex", status = "ok" }
+"Terminus2__Kimi-k2.5" = { scaffold = "terminus-2", model = "kimi-k2.5", status = "ok" }
+"Terminus2__Minimax-m2.5" = { scaffold = "terminus-2", model = "minimax-m2.5", status = "ok" }
+"WOZCODE__Claude-Opus-4-7" = { scaffold = "wozcode", model = "claude-opus-4-7", status = "ok" }
+"Wecode__GPT-5.5" = { scaffold = "wecode", model = "gpt-5.5", status = "ok" }
+"WozCode__Claude-Opus-4.6" = { scaffold = "wozcode", model = "claude-opus-4-6", status = "no-job-stats" }
+"cchuter__minimax-m2.5" = { scaffold = "cchuter", model = "minimax-m2.5", status = "ok" }
+"clnkr__GPT-5.5" = { scaffold = "clnkr", model = "gpt-5.5", status = "ok" }
+"copilot-cli__claude-opus-4.6" = { scaffold = "copilot-cli", model = "claude-opus-4-6", status = "ok" }
+"dakou__qwen3-coder-480b" = { scaffold = "aone-agent", model = "qwen3-coder-480b", status = "ok" }
+"grok-cli__grok-4.20-0309-reasoning" = { scaffold = "grok-cli", model = "grok-4.20", status = "ok" }
+"harness-agent__minimax-m2-7-highspeed" = { scaffold = "harness-agent", model = "minimax-m2.7", status = "ok" }
+"hookele__gpt5.1-codex-mini" = { scaffold = "hookele", model = "gpt-5.1-codex-mini", status = "ok" }
+"just-another-coding-agent__GLM-5" = { scaffold = "just-another-coding-agent", model = "glm-5", status = "ok" }
+"little-coder__qwen3.5-9b" = { scaffold = "little-coder", model = "qwen3.5-9b", status = "ok" }
+"little-coder__qwen3.6-35b-a3b" = { scaffold = "little-coder", model = "qwen3.6-35b", status = "ok" }
+"logos-latest__claude-opus-4.7" = { scaffold = "logos", model = "claude-opus-4-7", status = "ok" }
+"logos-ts__claude-opus-4.7" = { scaffold = "logos-ts", model = "claude-opus-4-7", status = "ok" }
+"logos__claude-opus-4.6" = { scaffold = "logos", model = "claude-opus-4-6", status = "ok" }
+"pilot-real__claude-opus-4-6" = { scaffold = "pilot", model = "claude-opus-4-6", status = "cheating" }
+"spoox-o-m__GPT-5-Nano" = { scaffold = "spoox-m", model = "gpt-5-nano", status = "ok" }
+"spoox-o-m__GPT-5.3-Codex" = { scaffold = "spoox-m", model = "gpt-5.3-codex", status = "ok" }
+"terminus-2__AfterQuery-GPT-OSS-20B" = { scaffold = "terminus-2", model = "gpt-oss-20b-rl", status = "ok" }
+"vix__claude-opus-4-7" = { scaffold = "vix", model = "claude-opus-4-7", status = "ok" }
