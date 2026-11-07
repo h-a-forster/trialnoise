@@ -74,6 +74,14 @@ def test_smoothed_truth_reproduces_the_fitted_trial_variance():
     assert meta["pseudo_count"] > 0
 
 
+def test_holm_rejections_leave_nan_out_of_the_family():
+    nan = math.nan
+    assert pr._holm_rejections(np.array([0.02, 0.03])) == 2
+    assert pr._holm_rejections(np.array([0.02, nan, 0.03])) == 2
+    assert pr._holm_rejections(np.array([nan, 0.04, 0.5])) == 0
+    assert pr._holm_rejections(np.array([nan, nan])) == 0
+
+
 def test_simulated_board_is_seeded_and_separates_cells_that_differ_by_design():
     truth = np.array([[0.95] * 60, [0.5] * 60, [0.05] * 60])
     one = pr.simulate_board(truth, ["a", "b", "c"], trials=5, tasks=60, reps=20, seed=1)

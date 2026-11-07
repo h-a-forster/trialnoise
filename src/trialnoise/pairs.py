@@ -131,8 +131,9 @@ def smoothed_truth(table: Layout) -> tuple[np.ndarray, dict[str, float]]:
 
 
 def _holm_rejections(p: np.ndarray) -> int:
-    ordered = np.sort(p)
-    m = len(p)
+    """Holm rejections at 0.05. A NaN is never rejected and does not count toward the family."""
+    ordered = np.sort(p[~np.isnan(p)])
+    m = len(ordered)
     hit = ordered * (m - np.arange(m)) > 0.05
     return int(np.argmax(hit)) if hit.any() else m
 
