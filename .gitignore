@@ -10,3 +10,4 @@ build/
 tmp/
 # Downloads and validation units (rebuilt with `trialnoise fetch` and `trialnoise validate`)
 data/
+backlog.md
