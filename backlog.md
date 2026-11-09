@@ -6,8 +6,6 @@
 
 - Run `uv run trialnoise report` and commit `REPORT.md`, or waive it: the harness refuses report files from subagents, so the file is not committed. The generator and its byte-identical hash are.
 - Decide whether trialnoise goes public; it stays private until then.
-- Dispatch CI once to prove the lowest-dependency job and the Linux `check` job, or waive it: byte identity has run on Windows only.
-- Merge branch `audit-fixes` into `main`: the audit fixes are pushed there, not on the default branch.
 
 ## Decided
 
