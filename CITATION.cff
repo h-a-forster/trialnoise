@@ -11,7 +11,7 @@ authors:
 repository-code: "https://github.com/h-a-forster/trialnoise"
 license: MIT
 version: 0.1.0
-date-released: "2026-11-06"
+date-released: "2026-11-08"
 keywords:
   - llm evaluation
   - agent evaluation

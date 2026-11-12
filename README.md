@@ -31,7 +31,9 @@ are 95%. MDEs are at 5% two-sided and 80% power, for near pairs with a pass rate
   holds at 4.3 to 5.1 points at every cut, while the model SD falls from 10.3 to 4.5.
 - **Runs barely shift scores here.** 20 submissions with replicate jobs give a run variance on 72 df
   that estimates below zero, with an upper limit of 0.9 points of run SD. evalnoise had 2.9 points
-  (1.6 to 6.4) on 7 df. Published jobs may be curated, so an unselected rerun could vary more.
+  (1.6 to 6.4) on 7 df, on a different score and from mm-arena runs that changed the Claude Code
+  version; most of it was one setup. Published jobs may be curated, so an unselected rerun could
+  vary more.
 - **The calculator holds out of sample.** On 252 near pairs among 39 submissions the study never
   saw, observed paired SEs were a median 0.94 of the prediction, and 83% were within 20%.
   Separately, simulation from the fit checks the planner's test, not new data: size 0.046 to 0.051,
