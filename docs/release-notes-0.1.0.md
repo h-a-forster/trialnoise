@@ -10,7 +10,7 @@ First release, with the `results/v1` study.
   like these, or these tasks), checked on 39 held-out submissions.
 - `trialnoise pairs`: task-clustered and fixed-task tests, and simulated boards.
 - Infrastructure, cost and an exploratory integrity screen.
-- evalnoise's estimators and planner, vendored at commit 14e5684 with their tests.
+- evalnoise's estimators and planner, vendored at commit 638c79a with their tests.
 
 ## Changes after two independent audits, before any release
 

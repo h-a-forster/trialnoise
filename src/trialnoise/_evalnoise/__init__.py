@@ -1,1 +1,1 @@
-"""Vendored from evalnoise at commit 14e5684; only import paths changed. See VENDORED.md."""
+"""Vendored from evalnoise at commit 638c79a; only import paths changed. See VENDORED.md."""
