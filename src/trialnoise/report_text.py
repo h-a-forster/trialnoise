@@ -335,6 +335,28 @@ points.
 - Exception data cover official submissions only, so none of the earliest large runs. Retried
   attempts leave no trace.
 
+## What would change the conclusion
+
+- **A real run term.** The planner sets run variance to zero, from jobs that {run_subs} submitters
+  chose to publish. Reruns chosen by someone else with a run SD near evalnoise's 2.9 points, not the
+  {run_sd_upper} upper limit here, would widen every MDE and leave a run-blind paired test wrong
+  {blind_size} of the time. Drift over months, bounded here only by the crossed residual of SD
+  {crossed_inter_sd} points, would do the same.
+- **New tasks unlike these 89.** "More tasks beat more trials" holds if added tasks resemble these
+  and are independent. If new tasks raise task x cell, or tasks cluster by theme, the tasks needed
+  grow and the MDEs here are too small.
+- **The calculator off the high band.** {held_high_pairs} of {held_pairs} held-out pairs are in the
+  high band. Low- or mid-band pairs whose observed SEs stray from the prediction, where the median
+  here is {held_median}, would mean those rows of the calculator are wrong.
+- **Scaffold against model.** The scaffold SD of {sweep_scaffold_low} to {sweep_scaffold_high}
+  points comes from submissions run on different dates and routes. A design that crosses scaffolds
+  and models on one date could move it. The frontier share moves with the cut by construction.
+- **Adjacent pairs.** That neighbours do not separate holds for every simulated design, up to 300
+  tasks ({board_300}% of best-per-scaffold pairs). It would change only if cells spread further
+  apart than the {gap_holm}-point smallest gap separated at Holm.
+- **Integrity.** The screen was built after seeing the outcome. A test on a benchmark it was not
+  built on could confirm it or drop it.
+
 ## Traceability
 
 | Numbers | File |
