@@ -390,14 +390,14 @@ uv run trialnoise check       # every output byte-identical
 README_FINDINGS = """\
 - **A 3-point gap:** {trials_fixed_3} trials per task to say A beat B on these {tasks} tasks. To say
   A beats B on tasks like these, no number of trials on {tasks} tasks is enough: {tasks_same_3}
-  tasks at 5 trials for two scaffolds on one model, {tasks_neither_3} when scaffold and model both
+  tasks at 5 trials for two scaffolds on one model, {tasks_neither_3_text} when scaffold and model both
   differ.
 - **More tasks beat more trials.** At today's {tasks} x 5 the MDE is {mde_same_895} to
   {mde_neither_895} points. Twice the trials gives {mde_same_8910} to {mde_neither_8910}; 150 tasks
   at 5 trials gives {mde_same_1505} to {mde_neither_1505}, with fewer trials in all.
 - **Variance of one trial, {cells} cells x {tasks} tasks, {trials} trials:** task {share_task}%,
   cell {share_cell}%, task x cell {share_task_cell}%, trial {share_trial}%. With the cell held
-  fixed, ICC(1) is {icc1} ({icc1_ci}) and ICC(1,5) is {icc5} ({icc5_ci}).
+  fixed, ICC(1) is {icc1} ({icc1_ci2}) and ICC(1,5) is {icc5} ({icc5_ci2}).
 - **Scaffold or model depends on where you look.** Across {nest_models} models under at least three
   scaffolds, scaffold-within-model is {nest_share}% of the variance of cell scores ({nest_ci}).
   Among the {top_models} models whose cells average at least 50% it is {top_share}% ({top_ci}), but

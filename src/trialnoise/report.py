@@ -32,8 +32,8 @@ def ci(pair: Any, digits: int = 1) -> str:
     return f"{pts(pair[0], digits)} to {pts(pair[1], digits)}"
 
 
-def ci3(pair: Any) -> str:
-    return f"{pair[0]:.3f} to {pair[1]:.3f}"
+def ci3(pair: Any, digits: int = 3) -> str:
+    return f"{pair[0]:.{digits}f} to {pair[1]:.{digits}f}"
 
 
 def rate(check: dict[str, Any]) -> str:
@@ -257,10 +257,12 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     cheap, dear = cost["cheapest_above_half"][0], cost["dearest"][0]
     counts = design["trials_per_task_cell"]
     per_cell = c["per_cell_icc"]
+    tasks_neither_3 = need(p, "neither/high", "population", 0.03)["tasks_at_trials"]["5"]
     out = {
         "trials_fixed_3": trials_fixed_3,
         "tasks_same_3": need(p, "same-model/high", "population", 0.03)["tasks_at_trials"]["5"],
-        "tasks_neither_3": need(p, "neither/high", "population", 0.03)["tasks_at_trials"]["5"],
+        "tasks_neither_3": tasks_neither_3,
+        "tasks_neither_3_text": f"{tasks_neither_3:,}",
         "ten_low": need(p, "same-model/high", "population", 0.10)["trials_at_89_tasks"],
         "ten_high": need(p, "neither/high", "population", 0.10)["trials_at_89_tasks"],
         "trial_share_same": pts((same["trial"] / 5) / (same["task_cell"] + same["trial"] / 5), 0),
@@ -274,8 +276,10 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
         "icc1": f"{values['icc1']:.2f}",
         "icc1_long": f"{values['icc1']:.3f}",
         "icc1_ci": ci3(both["icc1"]),
+        "icc1_ci2": ci3(both["icc1"], 2),
         "icc5": f"{values['icc1_k']:.2f}",
         "icc5_ci": ci3(both["icc1_k"]),
+        "icc5_ci2": ci3(both["icc1_k"], 2),
         "icc_random": f"{1 - values['share_trial']:.2f}",
         "icc_pair": f"{values['icc_pair']:.2f}",
         "icc_pair_ci": ci3(both["icc_pair"]),
