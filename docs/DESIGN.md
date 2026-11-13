@@ -154,8 +154,8 @@ of the rendered text, so a test can show regeneration is byte-identical from res
 states a few facts in words (one copied submission, six named ones, the top cell); `premises` refuses
 to render if a new data version breaks them.
 
-`trialnoise check` reruns the study from the committed tables and compares every output. So far that
-has run on Windows only: the `check` CI job repeats it on Linux, on manual dispatch. A fast test reruns
+`trialnoise check` reruns the study from the committed tables and compares every output. Locally that
+runs on Windows; the `check` CI job repeats it on Linux on every push and pull request. A fast test reruns
 the whole study path with next to no bootstrap draws and holds every point estimate to the committed
 value within 1e-4.
 

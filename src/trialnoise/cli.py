@@ -126,6 +126,8 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 def cmd_report(args: argparse.Namespace) -> int:
     report.write(args.results, data.WORK / "REPORT.md")
+    if data.SHIPPED.name != "_bundled":  # a checkout; a wheel has no README to keep in step
+        report.sync_readme(args.results, data.WORK / "README.md")
     return 0
 
 

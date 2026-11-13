@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +13,7 @@ import pandas as pd
 
 from trialnoise._evalnoise.data import DataError
 from trialnoise.decompose import BANDS, TERMS
-from trialnoise.report_text import TEMPLATE
+from trialnoise.report_text import README_FINDINGS, README_MARKERS, TEMPLATE
 
 LABEL = {"task": "Task", "cell": "Cell", "task_cell": "Task x cell", "trial": "Trial"}
 STAMP = "report.sha256"
@@ -462,7 +463,7 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     return out
 
 
-def render(results: Path) -> str:
+def _values(results: Path, with_tables: bool) -> dict:
     def read(name: str) -> dict:
         return json.loads((results / name).read_text(encoding="utf-8"))
 
@@ -471,8 +472,34 @@ def render(results: Path) -> str:
     pairs = pd.read_csv(results / "pairs.csv")
     integrity = pd.read_csv(results / "integrity.csv")
     values = fields(s, p, v, pairs, integrity)
-    values.update({f"table_{k}": t for k, t in tables(s, p, v).items()})
-    return TEMPLATE.format(**values)
+    if with_tables:
+        values.update({f"table_{k}": t for k, t in tables(s, p, v).items()})
+    return values
+
+
+def render(results: Path) -> str:
+    return TEMPLATE.format(**_values(results, with_tables=True))
+
+
+def readme_findings(results: Path) -> str:
+    """The README's findings block, markers included."""
+    text = README_FINDINGS.format(**_values(results, with_tables=False))
+    bullets = [" ".join(b.split()) for b in text.split("\n- ")]
+    wrap = textwrap.TextWrapper(100, subsequent_indent="  ", break_on_hyphens=False)
+    body = "\n".join(wrap.fill(b if b.startswith("- ") else "- " + b) for b in bullets)
+    start, end = README_MARKERS
+    return start + body + "\n" + end
+
+
+def sync_readme(results: Path, readme: Path) -> None:
+    """Replace the README's findings block with a fresh rendering; refuse without its markers."""
+    text = readme.read_text(encoding="utf-8")
+    start, end = README_MARKERS
+    if text.count(start) != 1 or text.count(end) != 1 or text.index(start) > text.index(end):
+        raise DataError(f"{readme} needs exactly one findings block between the generated markers")
+    head, rest = text.split(start)
+    tail = rest.split(end)[1]
+    readme.write_text(head + readme_findings(results) + tail, encoding="utf-8", newline="\n")
 
 
 def stamp(results: Path) -> None:

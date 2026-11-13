@@ -25,6 +25,19 @@ def test_report_regenerates_byte_for_byte_from_the_committed_results():
     assert digest == (RESULTS / report.STAMP).read_text(encoding="utf-8").strip()
 
 
+def test_readme_findings_are_rendered_from_the_committed_results():
+    readme = (RESULTS.parents[1] / "README.md").read_text(encoding="utf-8")
+    assert report.readme_findings(RESULTS) in readme
+
+
+def test_readme_sync_refuses_a_readme_without_its_markers(tmp_path):
+    readme = tmp_path / "README.md"
+    readme.write_text("# no markers\n", encoding="utf-8")
+    with pytest.raises(DataError):
+        report.sync_readme(RESULTS, readme)
+    assert readme.read_text(encoding="utf-8") == "# no markers\n"
+
+
 def test_report_is_written_with_unix_newlines(tmp_path):
     target = tmp_path / "out.md"
     copy = tmp_path / "results"

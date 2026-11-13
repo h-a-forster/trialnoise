@@ -28,11 +28,12 @@ for how many trials and tasks a comparison needs.
 - Long work: `validate` writes one atomic file per check under `data/validate/`, keyed by a hash of
   its inputs and `SCHEMA`, and skips finished ones. Bump `SCHEMA` in `validate.py` when a check's
   results would change.
-- Every number in the report comes from a field in `report.py`; prose lives in `report_text.py`.
-  Commit the regenerated `results/v1/report.sha256` with any change to either.
+- Every number in the report and the README's findings comes from a field in `report.py`; prose
+  lives in `report_text.py`. `trialnoise report` rewrites both; commit them and the regenerated
+  `results/v1/report.sha256` with any change to either.
 - `data/` and `tmp/` are gitignored. Never commit raw shards or job files.
 - Commits and PRs carry no generated-by trailers. CI runs on pushes to main, pull requests and
-  manual dispatch; the Linux `check` job runs only on dispatch.
+  manual dispatch, the Linux `check` job (the byte-identical rerun) included.
 - Release hygiene: no personal names, local user paths or machine details in committed files.
 - Statistical honesty: report sizes, seeds and intervals; say when a number is a bound; cells are
   submissions, not a sample; the integrity screen is exploratory and accuses nobody.
