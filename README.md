@@ -72,6 +72,28 @@ and `--target fixed` asks about these tasks only. `--run upper` adds the run ter
 An installed wheel carries `results/v1`, so these commands need no checkout. Commands that rebuild
 results write under the working folder.
 
+## Your own Inspect logs
+
+`trialnoise inspect` reads logs written by [Inspect](https://inspect.aisi.org.uk/) (`inspect_ai`)
+and prints the same decomposition for your eval, and the design a stated gap needs.
+
+```sh
+uv sync --extra inspect      # in a checkout; or pip install "trialnoise[inspect] @ git+https://github.com/h-a-forster/trialnoise"
+uv run trialnoise inspect logs/ --scorer match --gap 5
+uv run trialnoise inspect logs/a.eval logs/b.eval --gap 5 --json --write-table trials.csv
+```
+
+Each sample is an item (`task/sample id`), each epoch a trial, each model a cell (`--cell log` or
+`--cell metadata:KEY` compare something else), and each log a run. Two logs of one model give a
+run term; `--run upper` plans with its upper limit. Scores C, P, I, N map to 1, 0.5, 0, 0 as in
+Inspect; numbers and booleans are kept; a scorer with a dict value is read as `--scorer name:key`.
+Scores in [0, 1] are shown in points, and `--gap` is in points; other scores stay in their own
+units. Every trial left out is counted: errored samples (or `--errors zero` to score them 0),
+unfinished ones, samples with no value, copies superseded by an `eval_retry`, and items some cell
+lacks. The plan is for a paired comparison of two cells like yours, at the point estimates and at
+their 95% upper limits; with one model only the fixed-items plan is identified. Why it reads logs
+this way: [docs/DESIGN.md](docs/DESIGN.md#inspect-logs).
+
 ## Reproduce
 
 The committed tables in `results/v1` are enough to rerun the study.

@@ -215,6 +215,8 @@ def test_run_term_refuses_copied_jobs_unless_they_are_skipped():
     with pytest.raises(DataError, match="copy"):
         dc.run_term(frame)
     assert dc.run_term(frame, skip=("copy",))["df"] == 4
+    with pytest.raises(DataError, match="no submission has two jobs"):
+        dc.run_term(frame, skip=("copy", "real"))
 
 
 def test_run_term_fails_loudly_when_jobs_agree_too_closely_for_any_run_variance():

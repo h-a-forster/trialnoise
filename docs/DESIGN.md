@@ -147,6 +147,27 @@ against paired SEs of submissions the dataset never saw, each pair predicted at 
 of its trials per task. The `planner-*` checks draw from the fitted components, so they test the
 planner's formula, not its fit to new data.
 
+## Inspect logs
+
+`inspect_logs.py` maps Inspect logs onto the study's table, read through `inspect_ai`'s public log
+API (`read_eval_log_sample_summaries`, which keeps score values but not transcripts), pinned as the
+`inspect` extra.
+
+- **Run = log.** A log is one launch of one task on one model, the closest match to a job here.
+  Its key is Inspect's `task_id`, which `eval_retry` keeps: a retry copies the finished samples and
+  reruns the rest, so each sample epoch of a `task_id` keeps one copy, a scored one first, then the
+  newest log's. Counting both would double the trials of every retried eval.
+- **Items must be crossed.** The moment estimators need every cell on every item, so an item some
+  cell lacks leaves the table, and its trials are counted. Dropping cells instead would hide models.
+- **Strict scores.** Inspect's `value_to_float` turns an unknown string into 0 with a warning; here
+  it is an error. NaN and missing values are counted as unscored, never as failures. Errored samples
+  are dropped by default: a crash is not a wrong answer, and `--errors zero` is there when it is.
+- **The plan** treats a new pair of cells as having the table's pooled task x cell and trial
+  variances, the per-cell terms a paired difference carries. With few items those are poorly
+  known, so each plan is also given at the 95% upper limits of both (items resampled), which is
+  conservative. A run term needs two logs of one cell covering every item; otherwise it is
+  reported as not identified, and the plan assumes none.
+
 ## Report
 
 `report.py` fills `report_text.py` from the committed outputs. `results/v1/report.sha256` is the hash

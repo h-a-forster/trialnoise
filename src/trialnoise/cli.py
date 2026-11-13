@@ -1,4 +1,4 @@
-"""Command line: `trialnoise components|power|pairs`, and the steps that rebuild the study."""
+"""Command line: `trialnoise components|power|pairs|inspect`, and the steps that rebuild it."""
 
 from __future__ import annotations
 
@@ -13,7 +13,17 @@ from pathlib import Path
 
 import pandas as pd
 
-from trialnoise import __version__, data, decompose, pairs, planner, report, study, validate
+from trialnoise import (
+    __version__,
+    data,
+    decompose,
+    inspect_logs,
+    pairs,
+    planner,
+    report,
+    study,
+    validate,
+)
 from trialnoise._evalnoise.data import DataError
 
 RESULTS = data.SHIPPED / "results" / "v1"  # What the read-only commands answer from.
@@ -92,6 +102,26 @@ def cmd_pairs(args: argparse.Namespace) -> int:
     frame = frame[frame["universe"] == args.universe].head(args.top)
     shown = ["rank", "upper", "lower", "gap", "se_task", "p_task_holm", "se_fixed", "p_fixed_holm"]
     print(frame[shown].to_string(index=False))
+    return 0
+
+
+def cmd_inspect(args: argparse.Namespace) -> int:
+    reading = inspect_logs.read(args.logs, scorer=args.scorer, cell=args.cell, errors=args.errors)
+    scale = 100.0 if reading.unit_scale else 1.0
+    result = inspect_logs.analyse(
+        reading,
+        gap=args.gap / scale,
+        k=args.trials,
+        bootstrap=args.bootstrap,
+        seed=args.seed,
+        run=args.run,
+    )
+    if args.write_table:
+        reading.trials.to_csv(args.write_table, index=False)
+    if args.json:
+        print(json.dumps(study.rounded(result), indent=1))
+    else:
+        print(inspect_logs.render(reading, result))
     return 0
 
 
@@ -207,6 +237,29 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--top", type=int, default=10)
     p.add_argument("--a", help="first cell of a chosen pair")
     p.add_argument("--b", help="second cell of a chosen pair")
+
+    p = add("inspect", cmd_inspect, "noise and a replicate plan from Inspect eval logs")
+    p.add_argument("logs", nargs="+", type=Path, help="log files, or folders searched recursively")
+    p.add_argument(
+        "--gap",
+        type=float,
+        required=True,
+        help="difference to detect: points for scores in [0, 1], else score units",
+    )
+    p.add_argument("--scorer", help="scorer to read (name, or name:key for a dict value)")
+    p.add_argument(
+        "--cell",
+        default="model",
+        help="what is compared: model (default), log, or metadata:KEY of the eval metadata",
+    )
+    p.add_argument("--errors", choices=inspect_logs.ERRORS, default="drop",
+                   help="errored samples: drop them (default), or score them 0")  # fmt: skip
+    p.add_argument("--trials", type=int, help="trials per item to plan at (default: the logs')")
+    p.add_argument("--run", choices=("none", "upper"), default="none")
+    p.add_argument("--bootstrap", type=int, default=2000)
+    p.add_argument("--seed", type=int, default=study.SEED)
+    p.add_argument("--write-table", type=Path, help="also write the trial table as csv")
+    p.add_argument("--json", action="store_true", help="print JSON instead of text")
 
     p = add("fetch", cmd_fetch, "download the pinned sources")
     p.add_argument("--raw", type=Path, default=RAW)

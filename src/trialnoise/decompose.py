@@ -399,11 +399,18 @@ def _above_cancellation(value: float, scale: float) -> float:
     return 0.0 if abs(value) < 1e-9 * scale else value
 
 
-def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ...] = ()) -> dict:
+def run_term(
+    official: pd.DataFrame,
+    *,
+    min_tasks: int = 80,
+    skip: tuple[str, ...] = (),
+    max_var: float = 0.25,
+) -> dict:
     """Pooled run variance from submissions with replicate jobs on (nearly) every task.
 
     Each job is a run in evalnoise's sense. Job shocks are read inside one submission, where
-    scaffold, model and tasks are the same.
+    scaffold, model and tasks are the same. `max_var` bounds the interval: 0.25 for scores in
+    [0, 1], `inf` for unbounded ones.
     """
     keep = official[(official["status"] == "ok") & official["reward"].notna()]
     keep = keep[~keep["submission"].isin(skip)]
@@ -442,9 +449,11 @@ def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ..
                 "variance": _above_cancellation(term.variance(), term.ss / term.k),
             }
         )
+    if not terms:
+        raise DataError(f"no submission has two jobs on at least {min_tasks} tasks")
     pooled = RunTerm.pool(terms)
     f = (pooled.ss / pooled.df) / (pooled.rss / pooled.df_res)
-    lo, hi = pooled.interval(max_var=0.25)
+    lo, hi = pooled.interval(max_var=max_var)
     if math.isnan(hi):
         raise DataError("replicate jobs agree too closely for any run variance: look for copies")
     return {

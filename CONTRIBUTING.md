@@ -7,7 +7,7 @@ Read [docs/DESIGN.md](docs/DESIGN.md) first: it fixes the data handling, model a
 You need [uv](https://docs.astral.sh/uv/) and git.
 
 ```sh
-uv sync --group dev
+uv sync --group dev --extra inspect
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .

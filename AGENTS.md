@@ -15,6 +15,7 @@ for how many trials and tasks a comparison needs.
   `ruff format` (line length 100), pytest. `[tool.uv] exclude-newer` keeps the lock on releases at
   least two weeks old; move it deliberately.
 - Runtime dependencies: numpy, scipy, pandas, pyarrow, statsmodels (MixedLM is part of the study).
+  The `inspect` extra pins `inspect-ai` for `trialnoise inspect`; its tests skip without it.
 - The wheel force-includes `configs/` and `results/v1` as `trialnoise/_bundled`. `data.SHIPPED` finds
   them in a checkout or a wheel; `data.WORK` is where generated files go, never the wheel's copy.
 - `src/trialnoise/_evalnoise/` is vendored: see `VENDORED.md`. Change evalnoise, then copy. Its
@@ -48,6 +49,7 @@ for how many trials and tasks a comparison needs.
 | `src/trialnoise/pairs.py` | adjacent and all-pairs tests, simulated boards |
 | `src/trialnoise/planner.py` | the calculator over evalnoise's planner; held-out calibration |
 | `src/trialnoise/quality.py` | infrastructure, cost, integrity screen |
+| `src/trialnoise/inspect_logs.py` | Inspect logs to a trial table; `trialnoise inspect` |
 | `src/trialnoise/validate.py` | Monte Carlo checks |
 | `src/trialnoise/study.py` | runs everything and writes the outputs |
 | `src/trialnoise/report.py`, `report_text.py` | the report, from the outputs |
@@ -57,8 +59,8 @@ for how many trials and tasks a comparison needs.
 ## How to test
 
 ```sh
-uv sync --group dev
-uv run pytest                 # offline
+uv sync --group dev --extra inspect
+uv run pytest                 # offline; Inspect tests write logs with inspect_ai's mock model
 uv run pytest --runslow       # plus coverage and the byte-identical study rerun, about 10 minutes
 uv run ruff check .
 uv run ruff format --check .

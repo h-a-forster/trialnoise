@@ -28,6 +28,10 @@ classifiers = [
 ]
 dependencies = ["numpy>=1.26", "scipy>=1.11", "pandas>=2.1", "pyarrow>=15", "statsmodels>=0.14.2"]
 
+[project.optional-dependencies]
+# `trialnoise inspect` reads logs through inspect_ai's own log API; pinned, move it deliberately.
+inspect = ["inspect-ai==0.3.281"]
+
 [project.urls]
 Homepage = "https://github.com/h-a-forster/trialnoise"
 Documentation = "https://github.com/h-a-forster/trialnoise/tree/main/docs"
