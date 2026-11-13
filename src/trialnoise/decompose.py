@@ -392,6 +392,13 @@ def crossed_cells(score: np.ndarray, scaffolds: list[str], models: list[str]) ->
     }
 
 
+def _above_cancellation(value: float, scale: float) -> float:
+    """A moment estimate that is a difference of terms of size ``scale``, with the rounding
+    noise of that subtraction set to zero: below 1e-9 of the terms its digits are not data and
+    differ between platforms (one submission's two mean squares are equal, giving +-4e-20)."""
+    return 0.0 if abs(value) < 1e-9 * scale else value
+
+
 def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ...] = ()) -> dict:
     """Pooled run variance from submissions with replicate jobs on (nearly) every task.
 
@@ -432,7 +439,7 @@ def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ..
                 "pass_rate": float(g["reward"].mean()),
                 "ms_run": term.ss / term.df,
                 "ms_residual": term.rss / term.df_res,
-                "variance": term.variance(),
+                "variance": _above_cancellation(term.variance(), term.ss / term.k),
             }
         )
     pooled = RunTerm.pool(terms)
@@ -443,7 +450,7 @@ def run_term(official: pd.DataFrame, *, min_tasks: int = 80, skip: tuple[str, ..
     return {
         "df": pooled.df,
         "df_residual": pooled.df_res,
-        "variance": pooled.variance(),
+        "variance": _above_cancellation(pooled.variance(), pooled.ss / pooled.k),
         "interval": [lo, hi],
         "sd_upper": math.sqrt(hi),
         "f": f,

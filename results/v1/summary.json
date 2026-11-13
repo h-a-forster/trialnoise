@@ -1006,7 +1006,7 @@
     "ms_run": 0.00561798,
     "pass_rate": 0.870787,
     "submission": "JJAgent__Multiple",
-    "variance": -3.89826e-20
+    "variance": 0.0
    },
    {
     "df": 4,
