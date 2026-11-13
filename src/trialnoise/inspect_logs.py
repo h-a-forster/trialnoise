@@ -75,7 +75,13 @@ def log_files(paths: Iterable[Path | str]) -> list[str]:
     out: list[str] = []
     for path in map(Path, paths):
         if path.is_dir():
-            found = [info.name for info in log.list_eval_logs(str(path), recursive=True)]
+            # Inspect names logs by URI, which drops the drive letter on some Windows setups;
+            # keep its choice of files but read them from local paths.
+            local = {f.name: f for f in path.rglob("*") if f.suffix in (".eval", ".json")}
+            found = [
+                str(local[info.name.replace("\\", "/").rsplit("/", 1)[-1]])
+                for info in log.list_eval_logs(str(path), recursive=True)
+            ]
             if not found:
                 raise DataError(f"{path}: no Inspect logs (.eval or .json) in this folder")
             out += sorted(found)
