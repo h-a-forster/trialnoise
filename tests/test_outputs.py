@@ -1,6 +1,7 @@
 import hashlib
 import json
 import re
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -26,7 +27,8 @@ def test_report_regenerates_byte_for_byte_from_the_committed_results():
 
 
 def test_readme_findings_are_rendered_from_the_committed_results():
-    readme = (RESULTS.parents[1] / "README.md").read_text(encoding="utf-8")
+    # The checkout's README: an installed package bundles the results but not the README.
+    readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     assert report.readme_findings(RESULTS) in readme
 
 

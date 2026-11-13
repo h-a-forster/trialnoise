@@ -135,6 +135,20 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _differences(a: object, b: object, path: str = ""):
+    """Yield ``(path, committed, fresh, relative difference or None)`` for each differing leaf."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        for k in sorted(a.keys() | b.keys(), key=str):
+            yield from _differences(a.get(k), b.get(k), f"{path}/{k}")
+    elif isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        for i, (x, y) in enumerate(zip(a, b, strict=True)):
+            yield from _differences(x, y, f"{path}/{i}")
+    elif a != b:
+        numbers = all(isinstance(v, int | float) and not isinstance(v, bool) for v in (a, b))
+        rel = abs(a - b) / max(abs(a), abs(b)) if numbers else None
+        yield path, a, b, rel
+
+
 def cmd_check(args: argparse.Namespace) -> int:
     """Rerun the study from the committed tables; every output must match byte for byte."""
     with tempfile.TemporaryDirectory() as folder:
@@ -143,6 +157,13 @@ def cmd_check(args: argparse.Namespace) -> int:
             shutil.copy(args.results / name, fresh / name)
         study.run_study(fresh, log=lambda _: None)
         changed = [n for n in OUTPUTS if _digest(fresh / n) != _digest(args.results / n)]
+        for name in (n for n in changed if n.endswith(".json")):
+            committed = json.loads((args.results / name).read_text(encoding="utf-8"))
+            diffs = list(_differences(committed, json.loads((fresh / name).read_text("utf-8"))))
+            worst = max((r for *_, r in diffs if r is not None), default=None)
+            print(f"{name}: {len(diffs)} fields differ, largest relative difference {worst}")
+            for path, a, b, _ in diffs[:10]:
+                print(f"  {path}: committed {a!r}, fresh {b!r}")
     rendered = hashlib.sha256(report.render(args.results).encode("utf-8")).hexdigest()
     if rendered != (args.results / report.STAMP).read_text(encoding="utf-8").strip():
         changed.append("the rendered report")
