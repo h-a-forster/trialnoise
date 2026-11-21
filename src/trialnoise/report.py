@@ -13,6 +13,7 @@ import pandas as pd
 
 from trialnoise._evalnoise.data import DataError
 from trialnoise.decompose import BANDS, TERMS
+from trialnoise.passk import guaranteed_floor
 from trialnoise.report_text import README_FINDINGS, README_MARKERS, TEMPLATE
 
 LABEL = {"task": "Task", "cell": "Cell", "task_cell": "Task x cell", "trial": "Trial"}
@@ -467,6 +468,88 @@ def fields(s: dict, p: dict, v: dict, pairs: pd.DataFrame, integrity: pd.DataFra
     return out
 
 
+def passk_fields(q: dict) -> dict:
+    """The pass^k section's numbers, from passk.json."""
+    by_k, ref = q["by_k"], {(r["trials"], r["k"]): r for r in q["reference"]}
+    needs = {(r["k"], r["width"]): r for r in q["needs"]}
+    out: dict[str, Any] = {"pk_tasks": q["reference_tasks"], "pk_max_k": q["max_k"]}
+    for k in ("1", "2", "4", "5"):
+        out[f"pk_cells{k}"] = by_k[k]["cells"]
+    for k in ("2", "5"):
+        b = by_k[k]
+        out[f"pk_bias{k}"] = pts(b["pow_bias_median"])
+        out[f"pk_bias{k}_max"] = pts(b["pow_bias_max"])
+        out[f"pk_at_bias{k}"] = pts(-b["at_bias_median"])
+    for k in ("1", "5"):
+        out[f"pk_half{k}"] = pts(by_k[k]["pow_half_median"])
+        out[f"pk_sure{k}"] = pts(by_k[k]["pow_sure_median"])
+        out[f"pk_med{k}"] = pts(by_k[k]["pow_median"])
+    out["pk_rho5"] = f"{by_k['5']['spearman_vs_k1']:.3f}"
+    out["pk_plugin_rho5"] = f"{by_k['5']['plugin_spearman']:.3f}"
+    r55, r88 = ref[(5, 5)], ref[(8, 8)]
+    out |= {
+        "pk_sd55": pts(r55["sd_50"]),
+        "pk_bias55_90": pts(r55["plugin_bias_90"]),
+        "pk_truth55_90": pts(r55["truth_90"]),
+        "pk_bias88_90": pts(r88["plugin_bias_90"]),
+        "pk_half_nn": pts(r55["half_normal"]),
+        "pk_sure_nn": pts(r55["half_guaranteed"]),
+        "pk_n5w10": needs[(5, 0.1)]["normal"],
+        "pk_n5w10_sure": needs[(5, 0.1)]["guaranteed"],
+        "pk_n1w5": needs[(1, 0.05)]["normal"],
+        "pk_n5w5": needs[(5, 0.05)]["normal"],
+    }
+    if any(r["guaranteed"] is not None for r in q["needs"] if r["width"] == 0.05):
+        raise DataError("the pass^k prose says no guaranteed 5-point width; revise report_text.py")
+    return out
+
+
+def passk_tables(q: dict) -> dict[str, str]:
+    def hpt(x: float) -> str:
+        return f"{100 * x:.1f}"
+
+    out = {}
+    out["passk_reference"] = table(
+        ["n", "k", "SD at p=0.5", "Plug-in bias", "SD at p=0.9", "Plug-in bias",
+         "Worst SD (p)", f"+-, {q['reference_tasks']} tasks", "+-, guaranteed"],
+        [
+            [r["trials"], r["k"], hpt(r["sd_50"]), hpt(r["plugin_bias_50"]), hpt(r["sd_90"]),
+             hpt(r["plugin_bias_90"]), f"{hpt(r['sd_worst'])} ({r['p_worst']:.2f})",
+             hpt(r["half_normal"]), hpt(r["half_guaranteed"])]
+            for r in q["reference"]
+        ],
+    )  # fmt: skip
+
+    def sure(r: dict) -> str:
+        """A missing count is "never" only when Bernstein's floor proves it."""
+        if r["guaranteed"] is not None:
+            return str(r["guaranteed"])
+        if 2 * guaranteed_floor(r["tasks"]) > r["width"]:
+            return "never"
+        raise DataError(f"no guaranteed trials for {r} within the search; revise the table")
+
+    widths = sorted({r["width"] for r in q["needs"]})
+    rows = []
+    for k in sorted({r["k"] for r in q["needs"]}):
+        row: list[Any] = [k]
+        for w in widths:
+            r = next(x for x in q["needs"] if (x["k"], x["width"]) == (k, w))
+            row.append(f"{r['normal']} / {sure(r)}")
+        rows.append(row)
+    out["passk_needs"] = table(["k", *(f"{pts(w, 0)} points wide" for w in widths)], rows)
+    out["passk_cells"] = table(
+        ["k", "Cells", "Median pass^k", "Plug-in bias, median", "max", "+-, tasks like these",
+         "+-, these tasks, guaranteed", "Spearman with pass^1"],
+        [
+            [k, b["cells"], hpt(b["pow_median"]), hpt(b["pow_bias_median"]),
+             hpt(b["pow_bias_max"]), hpt(b["pow_half_median"]), hpt(b["pow_sure_median"]),
+             f"{b['spearman_vs_k1']:.3f}"]
+            for k, b in sorted(q["by_k"].items())
+        ],
+    )  # fmt: skip
+    return out
+
+
 def _values(results: Path, with_tables: bool) -> dict:
     def read(name: str) -> dict:
         return json.loads((results / name).read_text(encoding="utf-8"))
@@ -475,9 +558,10 @@ def _values(results: Path, with_tables: bool) -> dict:
     v = read("validation.json")["checks"]
     pairs = pd.read_csv(results / "pairs.csv")
     integrity = pd.read_csv(results / "integrity.csv")
-    values = fields(s, p, v, pairs, integrity)
+    q = read("passk.json")
+    values = fields(s, p, v, pairs, integrity) | passk_fields(q)
     if with_tables:
-        values.update({f"table_{k}": t for k, t in tables(s, p, v).items()})
+        values.update({f"table_{k}": t for k, t in (tables(s, p, v) | passk_tables(q)).items()})
     return values
 
 

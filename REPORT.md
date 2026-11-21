@@ -457,3 +457,119 @@ uv run trialnoise validate    # about 2 minutes
 uv run trialnoise report      # this file
 uv run trialnoise check       # every output byte-identical
 ```
+
+## Addendum, 2026-11-21: pass^k and pass@k
+
+Added on 2026-11-21, after v1 was finished; nothing above this section changed. Its numbers are in
+[passk.csv](results/v1/passk.csv) and [passk.json](results/v1/passk.json), which `trialnoise study`
+writes from the same trial table.
+
+**pass^k needs an interval, not a new formula.** The public reducers read for this report already
+use the unbiased C(c,k)/C(n,k); none reports an interval. A cell's pass^5 from 5 trials on 89
+tasks is +-9.5 points over tasks like these (median over 60 cells). Holding the
+tasks fixed, a guaranteed 10-point-wide interval needs 73 trials per task at the
+worst case, a normal one 18. The plug-in (c/n)^5 would overstate pass^5 by a median
+3.9 points.
+
+pass^k is the chance that k fresh trials of a task all pass, p^k; pass@k that at least one does,
+1 - (1 - p)^k. From n trials with c passes the unbiased estimators are C(c,k)/C(n,k) and
+1 - C(n-c,k)/C(n,k), which exist for k <= n only. The plug-in (c/n)^k overstates pass^k, and
+1 - (1 - c/n)^k understates pass@k, for every k >= 2 and 0 < p < 1. `trialnoise.passk` gives each
+task's exact law, mean and variance as fractions, the benchmark's law by convolution over tasks,
+intervals, and the trials per task a width needs. Its tests check the law against all 2^n outcome
+sequences, unbiasedness and the closed-form variance exactly, and the intervals' coverage on the
+exact law. pass@k is pass^k of the failures, so the two share variances and worst cases; the
+tables give pass^k.
+
+One task says little. At n = k = 5 the estimator is one coin, whether all five passed: its SD at
+p = 0.5 is 17.4 points. At p = 0.9 the plug-in puts pass^5 (59.0%) 11.3
+points too high, and pass^8 from 8 trials 14.7 points too high. At k = n the worst-case
+variance is a quarter whatever n is, so the mean over 89 fixed tasks is +-10.4
+points by the normal approximation and +-14.4 guaranteed.
+
+| n | k | SD at p=0.5 | Plug-in bias | SD at p=0.9 | Plug-in bias | Worst SD (p) | +-, 89 tasks | +-, guaranteed |
+|---|---|---|---|---|---|---|---|---|
+| 4 | 1 | 25.0 | 0.0 | 15.0 | 0.0 | 25.0 (0.50) | 5.2 | 8.7 |
+| 4 | 2 | 27.0 | 6.2 | 27.2 | 2.2 | 33.4 (0.74) | 6.9 | 11.1 |
+| 4 | 3 | 25.0 | 9.4 | 37.8 | 5.6 | 41.6 (0.81) | 8.6 | 13.4 |
+| 4 | 4 | 24.2 | 10.4 | 47.5 | 9.5 | 50.0 (0.84) | 10.4 | 14.4 |
+| 5 | 1 | 22.4 | 0.0 | 13.4 | 0.0 | 22.4 (0.50) | 4.6 | 8.0 |
+| 5 | 2 | 23.7 | 5.0 | 24.3 | 1.8 | 29.7 (0.74) | 6.2 | 10.0 |
+| 5 | 3 | 20.9 | 7.5 | 33.5 | 4.6 | 36.6 (0.82) | 7.6 | 12.0 |
+| 5 | 4 | 18.3 | 8.2 | 41.6 | 7.8 | 43.2 (0.85) | 9.0 | 13.9 |
+| 5 | 5 | 17.4 | 7.9 | 49.2 | 11.3 | 50.0 (0.87) | 10.4 | 14.4 |
+| 8 | 1 | 17.7 | 0.0 | 10.6 | 0.0 | 17.7 (0.50) | 3.7 | 6.7 |
+| 8 | 2 | 18.3 | 3.1 | 19.2 | 1.1 | 23.2 (0.74) | 4.8 | 8.2 |
+| 8 | 3 | 15.1 | 4.7 | 26.2 | 2.9 | 28.3 (0.82) | 5.9 | 9.6 |
+| 8 | 4 | 11.8 | 5.0 | 32.0 | 5.1 | 32.9 (0.86) | 6.8 | 10.9 |
+| 8 | 5 | 9.3 | 4.6 | 37.1 | 7.5 | 37.2 (0.89) | 7.7 | 12.2 |
+| 8 | 6 | 7.6 | 4.0 | 41.5 | 9.9 | 41.5 (0.90) | 8.6 | 13.4 |
+| 8 | 7 | 6.6 | 3.3 | 45.6 | 12.4 | 45.7 (0.91) | 9.5 | 14.4 |
+| 8 | 8 | 6.2 | 2.8 | 49.5 | 14.7 | 50.0 (0.92) | 10.4 | 14.4 |
+| 16 | 1 | 12.5 | 0.0 | 7.5 | 0.0 | 12.5 (0.50) | 2.6 | 5.2 |
+| 16 | 2 | 12.7 | 1.6 | 13.5 | 0.6 | 16.3 (0.75) | 3.4 | 6.3 |
+| 16 | 3 | 10.0 | 2.3 | 18.4 | 1.5 | 19.7 (0.83) | 4.1 | 7.2 |
+| 16 | 4 | 7.2 | 2.4 | 22.2 | 2.6 | 22.6 (0.87) | 4.7 | 8.0 |
+| 16 | 5 | 5.0 | 2.1 | 25.3 | 3.9 | 25.4 (0.89) | 5.3 | 8.8 |
+| 16 | 6 | 3.5 | 1.7 | 27.8 | 5.2 | 27.9 (0.91) | 5.8 | 9.5 |
+| 16 | 7 | 2.4 | 1.4 | 29.8 | 6.6 | 30.3 (0.92) | 6.3 | 10.2 |
+| 16 | 8 | 1.7 | 1.0 | 31.4 | 7.9 | 32.7 (0.93) | 6.8 | 10.9 |
+| 16 | 9 | 1.3 | 0.8 | 32.7 | 9.1 | 34.9 (0.94) | 7.3 | 11.5 |
+| 16 | 10 | 0.9 | 0.6 | 33.8 | 10.3 | 37.1 (0.94) | 7.7 | 12.2 |
+| 16 | 11 | 0.7 | 0.4 | 34.8 | 11.4 | 39.3 (0.95) | 8.2 | 12.8 |
+| 16 | 12 | 0.6 | 0.3 | 35.6 | 12.4 | 41.4 (0.95) | 8.6 | 13.4 |
+| 16 | 13 | 0.5 | 0.2 | 36.4 | 13.3 | 43.6 (0.95) | 9.1 | 14.0 |
+| 16 | 14 | 0.4 | 0.2 | 37.2 | 14.1 | 45.7 (0.95) | 9.5 | 14.4 |
+| 16 | 15 | 0.4 | 0.1 | 38.0 | 14.9 | 47.8 (0.96) | 9.9 | 14.4 |
+| 16 | 16 | 0.4 | 0.1 | 38.9 | 15.5 | 50.0 (0.96) | 10.4 | 14.4 |
+
+SD and bias are for one task, in points; bias is the plug-in's expectation minus the truth. The two
++- columns are half the 95% interval for the mean over 89 tasks held fixed, at each row's
+worst-case p: by the normal approximation, and a guaranteed one, the smaller of Hoeffding's and
+Bernstein's bounds, which holds at any number of tasks.
+
+Trials per task for a 95% interval of a given full width on 89 fixed tasks, at the worst
+case, normal / guaranteed:
+
+| k | 5 points wide | 10 points wide | 20 points wide |
+|---|---|---|---|
+| 1 | 18 / never | 5 / 19 | 2 / 3 |
+| 2 | 30 / never | 8 / 32 | 3 / 6 |
+| 3 | 43 / never | 11 / 46 | 4 / 8 |
+| 5 | 68 / never | 18 / 73 | 6 / 13 |
+| 8 | 107 / never | 28 / 115 | 9 / 20 |
+
+No number of trials gives a guaranteed interval 5 points wide on 89 tasks: Bernstein's
+bound keeps a term in 1/tasks however small the variance. The normal interval needs 18 trials
+per task for that at k = 1 and 68 at k = 5. For tasks like these rather than these tasks,
+the spread between tasks adds a floor that no number of trials removes, as in the calculator.
+
+On Terminal-Bench 2, each cell gets pass^k for k up to the fewest trials it ran on any task, so
+every row scores all 89 tasks: 108 cells at k = 1, 95 at 4 and 60 at 5.
+
+| k | Cells | Median pass^k | Plug-in bias, median | max | +-, tasks like these | +-, these tasks, guaranteed | Spearman with pass^1 |
+|---|---|---|---|---|---|---|---|
+| 1 | 108 | 42.4 | 0.0 | 0.0 | 8.3 | 8.0 | 1.000 |
+| 2 | 104 | 31.6 | 1.7 | 2.4 | 8.5 | 10.0 | 0.997 |
+| 3 | 100 | 27.0 | 2.6 | 3.8 | 8.5 | 12.0 | 0.993 |
+| 4 | 95 | 23.8 | 3.2 | 5.5 | 8.5 | 13.9 | 0.990 |
+| 5 | 60 | 28.1 | 3.9 | 7.6 | 9.5 | 14.4 | 0.982 |
+
++- for tasks like these is the t interval from the spread of the tasks' estimates; for these tasks
+it is the guaranteed worst case, the same for every cell with the same trials. The plug-in would put
+pass^2 a median 1.7 points too high (up to 2.4) and pass^5 3.9 (up to
+7.6), and pass@5 3.2 too low. It shifts levels but barely reorders cells: the
+plug-in and unbiased pass^5 rank cells with a Spearman correlation of 0.997. Nor does
+pass^5 say much that the pass rate does not: the two rank cells at 0.982.
+
+The implementations read for this report are tau-bench, tau2-bench, HAL, inspect_ai's reducers,
+inspect_evals and human-eval; [docs/DESIGN.md](docs/DESIGN.md#passk-and-passk) has the table with
+line links. Every one that computes pass^k or pass@k from replicate trials uses the unbiased form,
+none uses the plug-in, and none reports an interval or standard error for pass^k. tau-bench divides
+by the number of trials of the whole run, so a task with fewer trials is scored low.
+
+**Limitation.** These laws and intervals take a task's trials as independent with one
+success probability. Trials in one job that share a run shock are positively correlated, so
+pass^k's true variance is larger than these laws say, and the plug-in bias is not the only
+error. The run term above, at most 0.9 points of SD between jobs, suggests the shift is
+small here, but it does not measure correlation within a job.

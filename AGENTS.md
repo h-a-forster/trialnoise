@@ -7,7 +7,8 @@ any statistics or data handling: it fixes them and records why.
 
 A study and small package. It decomposes the variance of public Terminal-Bench 2 trial outcomes
 (task, cell, task x cell, trial, run), separates scaffold from model, and calibrates a calculator
-for how many trials and tasks a comparison needs.
+for how many trials and tasks a comparison needs. It also gives the exact sampling laws of pass^k
+and pass@k.
 
 ## Conventions
 
@@ -48,13 +49,14 @@ for how many trials and tasks a comparison needs.
 | `src/trialnoise/decompose.py` | components, ICC, strata, nested and crossed terms, run term |
 | `src/trialnoise/pairs.py` | adjacent and all-pairs tests, simulated boards |
 | `src/trialnoise/planner.py` | the calculator over evalnoise's planner; held-out calibration |
+| `src/trialnoise/passk.py` | exact laws, intervals and trials needed for pass^k and pass@k |
 | `src/trialnoise/quality.py` | infrastructure, cost, integrity screen |
 | `src/trialnoise/inspect_logs.py` | Inspect logs to a trial table; `trialnoise inspect` |
 | `src/trialnoise/validate.py` | Monte Carlo checks |
 | `src/trialnoise/study.py` | runs everything and writes the outputs |
 | `src/trialnoise/report.py`, `report_text.py` | the report, from the outputs |
 | `configs/official.toml` | official submissions: scaffold, model, standing |
-| `results/v1/` | committed tables and outputs |
+| `results/v1/` | committed tables and outputs; `passk.csv` and `passk.json` hold pass^k |
 
 ## How to test
 
@@ -78,4 +80,3 @@ uv run trialnoise check       # every output byte-identical
 uv run trialnoise report      # write REPORT.md
 ```
 
-Open work lives in `backlog.md`.

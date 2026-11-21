@@ -383,6 +383,76 @@ uv run trialnoise validate    # about 2 minutes
 uv run trialnoise report      # this file
 uv run trialnoise check       # every output byte-identical
 ```
+
+## Addendum, 2026-11-21: pass^k and pass@k
+
+Added on 2026-11-21, after v1 was finished; nothing above this section changed. Its numbers are in
+[passk.csv](results/v1/passk.csv) and [passk.json](results/v1/passk.json), which `trialnoise study`
+writes from the same trial table.
+
+**pass^k needs an interval, not a new formula.** The public reducers read for this report already
+use the unbiased C(c,k)/C(n,k); none reports an interval. A cell's pass^5 from 5 trials on 89
+tasks is +-{pk_half5} points over tasks like these (median over {pk_cells5} cells). Holding the
+tasks fixed, a guaranteed 10-point-wide interval needs {pk_n5w10_sure} trials per task at the
+worst case, a normal one {pk_n5w10}. The plug-in (c/n)^5 would overstate pass^5 by a median
+{pk_bias5} points.
+
+pass^k is the chance that k fresh trials of a task all pass, p^k; pass@k that at least one does,
+1 - (1 - p)^k. From n trials with c passes the unbiased estimators are C(c,k)/C(n,k) and
+1 - C(n-c,k)/C(n,k), which exist for k <= n only. The plug-in (c/n)^k overstates pass^k, and
+1 - (1 - c/n)^k understates pass@k, for every k >= 2 and 0 < p < 1. `trialnoise.passk` gives each
+task's exact law, mean and variance as fractions, the benchmark's law by convolution over tasks,
+intervals, and the trials per task a width needs. Its tests check the law against all 2^n outcome
+sequences, unbiasedness and the closed-form variance exactly, and the intervals' coverage on the
+exact law. pass@k is pass^k of the failures, so the two share variances and worst cases; the
+tables give pass^k.
+
+One task says little. At n = k = 5 the estimator is one coin, whether all five passed: its SD at
+p = 0.5 is {pk_sd55} points. At p = 0.9 the plug-in puts pass^5 ({pk_truth55_90}%) {pk_bias55_90}
+points too high, and pass^8 from 8 trials {pk_bias88_90} points too high. At k = n the worst-case
+variance is a quarter whatever n is, so the mean over {pk_tasks} fixed tasks is +-{pk_half_nn}
+points by the normal approximation and +-{pk_sure_nn} guaranteed.
+
+{table_passk_reference}
+
+SD and bias are for one task, in points; bias is the plug-in's expectation minus the truth. The two
++- columns are half the 95% interval for the mean over {pk_tasks} tasks held fixed, at each row's
+worst-case p: by the normal approximation, and a guaranteed one, the smaller of Hoeffding's and
+Bernstein's bounds, which holds at any number of tasks.
+
+Trials per task for a 95% interval of a given full width on {pk_tasks} fixed tasks, at the worst
+case, normal / guaranteed:
+
+{table_passk_needs}
+
+No number of trials gives a guaranteed interval 5 points wide on {pk_tasks} tasks: Bernstein's
+bound keeps a term in 1/tasks however small the variance. The normal interval needs {pk_n1w5} trials
+per task for that at k = 1 and {pk_n5w5} at k = 5. For tasks like these rather than these tasks,
+the spread between tasks adds a floor that no number of trials removes, as in the calculator.
+
+On Terminal-Bench 2, each cell gets pass^k for k up to the fewest trials it ran on any task, so
+every row scores all 89 tasks: {pk_cells1} cells at k = 1, {pk_cells4} at 4 and {pk_cells5} at 5.
+
+{table_passk_cells}
+
++- for tasks like these is the t interval from the spread of the tasks' estimates; for these tasks
+it is the guaranteed worst case, the same for every cell with the same trials. The plug-in would put
+pass^2 a median {pk_bias2} points too high (up to {pk_bias2_max}) and pass^5 {pk_bias5} (up to
+{pk_bias5_max}), and pass@5 {pk_at_bias5} too low. It shifts levels but barely reorders cells: the
+plug-in and unbiased pass^5 rank cells with a Spearman correlation of {pk_plugin_rho5}. Nor does
+pass^5 say much that the pass rate does not: the two rank cells at {pk_rho5}.
+
+The implementations read for this report are tau-bench, tau2-bench, HAL, inspect_ai's reducers,
+inspect_evals and human-eval; [docs/DESIGN.md](docs/DESIGN.md#passk-and-passk) has the table with
+line links. Every one that computes pass^k or pass@k from replicate trials uses the unbiased form,
+none uses the plug-in, and none reports an interval or standard error for pass^k. tau-bench divides
+by the number of trials of the whole run, so a task with fewer trials is scored low.
+
+**Limitation.** These laws and intervals take a task's trials as independent with one
+success probability. Trials in one job that share a run shock are positively correlated, so
+pass^k's true variance is larger than these laws say, and the plug-in bias is not the only
+error. The run term above, at most {run_sd_upper} points of SD between jobs, suggests the shift is
+small here, but it does not measure correlation within a job.
 """
 
 # The README's findings, between README_MARKERS; `trialnoise report` rewrites them and a test
@@ -426,6 +496,11 @@ README_FINDINGS = """\
   {tasks} tasks, trial for trial, so it is left out. Four of the six submissions from the three
   agents the organisers named rank in the lowest {named_low} of {units} for how often trials of one
   task disagree.
+- **pass^k needs an interval, not a new formula (added 2026-11-21, after v1).** The public reducers
+  read here already use the unbiased C(c,k)/C(n,k), and none reports an interval. A cell's pass^5
+  from 5 trials on {tasks} tasks is +-{pk_half5} points over tasks like these (median over
+  {pk_cells5} cells); the plug-in (c/n)^5 would overstate it by a
+  median {pk_bias5} points.
 """
 README_MARKERS = (
     "<!-- findings: generated by `trialnoise report` from results/v1; do not edit by hand -->\n",

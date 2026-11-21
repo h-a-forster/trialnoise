@@ -1,4 +1,4 @@
-"""The study: components, scaffold terms, run term, planner, pairs, infrastructure, cost."""
+"""The study: components, scaffold terms, run term, planner, pairs, infrastructure, cost, pass^k."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ import pandas as pd
 
 from trialnoise import decompose as dc
 from trialnoise import pairs as pr
+from trialnoise import passk as pk
 from trialnoise import planner as pl
 from trialnoise import quality as ql
 from trialnoise.data import load_tables
@@ -467,6 +468,9 @@ def run_study(results: Path, log: Callable[[str], None] = print) -> dict[str, An
     pair_table, pair_summary = fit_pairs(all_table, table, meta)
     log("pairs done")
 
+    passk_table, passk_summary = pk.study(primary)
+    log("pass^k done")
+
     infra = ql.infra_table(official, manifest["submissions"])
     infra_summary = ql.infra_summary(infra, official)
     cost = ql.cost_table(trials, draws=DRAWS, seed=seed_of("cost"))
@@ -560,5 +564,7 @@ def run_study(results: Path, log: Callable[[str], None] = print) -> dict[str, An
     write_csv(results / "integrity.csv", screen)
     write_csv(results / "heldout.csv", heldout_table)
     write_json(results / "planner.json", planner)
+    write_csv(results / "passk.csv", passk_table)
+    write_json(results / "passk.json", passk_summary)
     write_json(results / "summary.json", summary)
     return summary

@@ -161,11 +161,18 @@ def test_study_code_reproduces_the_committed_point_estimates(tmp_path, monkeypat
     for name in cli.TABLES:
         (tmp_path / name).write_bytes((RESULTS / name).read_bytes())
     study.run_study(tmp_path, log=lambda _: None)
-    for name in ("cells.csv", "heldout.csv", "infra.csv", "integrity.csv", "pairs.csv"):
+    for name in (
+        "cells.csv",
+        "heldout.csv",
+        "infra.csv",
+        "integrity.csv",
+        "pairs.csv",
+        "passk.csv",
+    ):
         pd.testing.assert_frame_equal(
             pd.read_csv(tmp_path / name), pd.read_csv(RESULTS / name), rtol=1e-4, atol=1e-9
         )
-    for name in ("summary.json", "planner.json"):
+    for name in ("summary.json", "planner.json", "passk.json"):
         fresh = json.loads((tmp_path / name).read_text(encoding="utf-8"))
         committed = json.loads((RESULTS / name).read_text(encoding="utf-8"))
         if name == "planner.json":

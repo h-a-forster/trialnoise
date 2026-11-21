@@ -1,4 +1,4 @@
-"""Command line: `trialnoise components|power|pairs|inspect`, and the steps that rebuild it."""
+"""Command line: `trialnoise components|power|pairs|passk|inspect`, and the rebuilding steps."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from trialnoise import (
     decompose,
     inspect_logs,
     pairs,
+    passk,
     planner,
     report,
     study,
@@ -34,7 +35,7 @@ UNITS = data.WORK / "data" / "validate"
 TABLES = ("trials.parquet", "official.parquet", "MANIFEST.json")
 OUTPUTS = (
     "components.csv", "cells.csv", "cost.csv", "heldout.csv", "infra.csv", "integrity.csv",
-    "pairs.csv", "planner.json", "summary.json",
+    "pairs.csv", "passk.csv", "passk.json", "planner.json", "summary.json",
 )  # fmt: skip
 
 
@@ -102,6 +103,16 @@ def cmd_pairs(args: argparse.Namespace) -> int:
     frame = frame[frame["universe"] == args.universe].head(args.top)
     shown = ["rank", "upper", "lower", "gap", "se_task", "p_task_holm", "se_fixed", "p_fixed_holm"]
     print(frame[shown].to_string(index=False))
+    return 0
+
+
+def cmd_passk(args: argparse.Namespace) -> int:
+    rows = passk.cell_rows(_read_table(args.table), args.k)
+    rows = rows[rows["k"] == args.k] if args.only else rows
+    if rows.empty:
+        raise DataError(f"no cell has {args.k} trials on every task")
+    shown = ["cell", "k", "tasks", "pow", "pow_lo", "pow_hi", "pow_plugin", "at", "at_lo", "at_hi"]
+    print(rows[shown].to_string(index=False, float_format=lambda x: f"{x:.3f}"))
     return 0
 
 
@@ -237,6 +248,13 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--top", type=int, default=10)
     p.add_argument("--a", help="first cell of a chosen pair")
     p.add_argument("--b", help="second cell of a chosen pair")
+
+    p = add("passk", cmd_passk, "pass^k and pass@k per cell, with 95% intervals")
+    p.add_argument("--table", type=Path, default=RESULTS / "trials.parquet")
+    p.add_argument(
+        "--k", type=int, default=5, help="largest k (each cell stops at its fewest trials)"
+    )
+    p.add_argument("--only", action="store_true", help="show k itself only")
 
     p = add("inspect", cmd_inspect, "noise and a replicate plan from Inspect eval logs")
     p.add_argument("logs", nargs="+", type=Path, help="log files, or folders searched recursively")

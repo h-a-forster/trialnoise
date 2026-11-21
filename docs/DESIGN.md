@@ -168,6 +168,66 @@ API (`read_eval_log_sample_summaries`, which keeps score values but not transcri
   conservative. A run term needs two logs of one cell covering every item; otherwise it is
   reported as not identified, and the plan assumes none.
 
+## pass^k and pass@k
+
+Reliability is reported as pass^k, the chance that k fresh trials of a task all pass (p^k), and
+coding as pass@k, that at least one does (1 - (1 - p)^k), from 4 to 8 trials per task and with no
+interval. `passk.py` answers what such a number can carry.
+
+- **Estimators.** From n trials with c passes, C(c,k)/C(n,k) and 1 - C(n-c,k)/C(n,k) are unbiased
+  (each averages the k-subsets of the trials). A function of p has an unbiased estimator from n
+  trials only if it is a polynomial of degree at most n, so k > n has none, and the variance of a
+  task's estimate, of degree 2k, has an unbiased estimate only when 2k <= n. The plug-in
+  (c/n)^k overstates pass^k by Jensen, pointwise as well as in expectation.
+- **Exact laws.** A task's law is the binomial pushed through the estimator, in `Fraction`s; its
+  variance also has Hoeffding's closed form for a U-statistic, sum over j of
+  C(k,j) C(n-k,k-j) / C(n,k) (p^(2k-j) - p^(2k)). The tests check both against enumeration of all
+  2^n outcome sequences, and the benchmark law, the convolution of the tasks' laws, against
+  enumeration of every joint outcome.
+- **Intervals.** One task: Clopper-Pearson for p mapped through p^k, exact and conservative, and
+  valid for k > n too. A benchmark: with tasks held fixed the mean's variance is the sum of the
+  tasks' variances over tasks squared; bounding each by its worst case over p gives a normal
+  interval and a guaranteed one (the smaller of Hoeffding's and Bernstein's bounds, both fixed
+  before the data). For tasks like these, the t interval from the spread of the tasks' estimates.
+  The tests check coverage on the exact convolved law.
+- **Trials needed.** The first n whose worst-case interval on t fixed tasks fits a width. The
+  worst-case variance never rises with n (tested to n = 40), so the first n that fits is the answer.
+  For tasks like these the spread between tasks is added, as in the calculator, and sets a floor.
+- **Success** on Terminal-Bench 2 is a reward of 1; a missing reward would count as a failed trial
+  (the committed table has none). Each cell is scored for k up to the fewest
+  trials it ran on any task, so no task is dropped and cells at one k share their tasks.
+
+### Implementation audit
+
+Read as text on 2026-11-21 at the commits linked; nothing was installed or run. n and c as above.
+
+| Implementation | Metric | Estimator | n, and k > n | Interval |
+|---|---|---|---|---|
+| tau-bench `display_metrics` ([run.py L180-203](https://github.com/sierra-research/tau-bench/blob/59a200c6d575d595120f1cb70fea53cef0632f6b/tau_bench/run.py#L180-L203)) | pass^k | Unbiased, `comb(c, k) / comb(num_trials, k)` | n is the run's number of distinct trial ids, not the task's: a task with fewer trials is scored low (expected p^k C(n_task,k)/C(n,k)). k runs 1..n. | None |
+| tau2-bench `pass_hat_k` ([agent_metrics.py L113-191](https://github.com/sierra-research/tau2-bench/blob/835093c4ae1cc33cca3ba2995ea88c6c4441fe60/src/tau2/metrics/agent_metrics.py#L113-L191)) | pass^k | Unbiased, `math.comb(success_count, k) / math.comb(num_trials, k)` | Per task; max k lowered to the fewest trials of any task; `ValueError` if n < k | None |
+| tau2-bench crossed Pass^3 ([pass3.py L149-244](https://github.com/sierra-research/tau2-bench/blob/835093c4ae1cc33cca3ba2995ea88c6c4441fe60/src/tau2/runner/pass3.py#L149-L244)) | Pass^3 | One trial in each of three fixed conditions, all passed: three conditions, not replicates | n = k = 3 required | None |
+| HAL tau-bench wrapper ([taubench.py L124-161](https://github.com/princeton-pli/hal-harness/blob/16bb03ebc11577fb5ea6dc8bb6c968387085e6aa/hal/benchmarks/taubench.py#L124-L161)) | accuracy | One run, `reward / number_of_tasks`; HAL computes no pass^k | - | None |
+| HAL `compute_outcome_consistency` ([consistency.py L12-39](https://github.com/princeton-pli/hal-harness/blob/16bb03ebc11577fb5ea6dc8bb6c968387085e6aa/reliability_eval/metrics/consistency.py#L12-L39)) | consistency over K runs | Plug-in `(2 * p_hat - 1) ** 2` | K < 2 gives NaN | Across-task SEM elsewhere in the module |
+| HAL's vendored USACO `_pass_at_k` ([metrics.py L21-39](https://github.com/princeton-pli/hal-harness/blob/16bb03ebc11577fb5ea6dc8bb6c968387085e6aa/agents/USACO/USACOBench/evaluation/metrics.py#L21-L39)) | pass@k | Unbiased, `1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))` | Per problem | `np.std / sqrt` across problems, marked "not rigorous" (L9) |
+| HAL's vendored USACO `pass_at_k_basic` ([metrics.py L41-53](https://github.com/princeton-pli/hal-harness/blob/16bb03ebc11577fb5ea6dc8bb6c968387085e6aa/agents/USACO/USACOBench/evaluation/metrics.py#L41-L53)) | pass@k | `any()` over windows `result_set[begin:begin+k]` for `begin in range(int(len(result_set) / k))`: the windows step by one, so they overlap and use only the first n/k + k - 1 attempts. Unbiased, but wastes trials | k > n gives no windows | As above |
+| inspect_ai `pass_at` ([reducer.py L163-205](https://github.com/UKGovernmentBEIS/inspect_ai/blob/44ff4188232418ead18467596909272850483951/src/inspect_ai/scorer/_reducer/reducer.py#L163-L205), 0.3.281) | pass@k | Unbiased, HumanEval product form | Per sample, scored epochs; NaN if n < k | None |
+| inspect_ai `pass_k` ([reducer.py L208-244](https://github.com/UKGovernmentBEIS/inspect_ai/blob/44ff4188232418ead18467596909272850483951/src/inspect_ai/scorer/_reducer/reducer.py#L208-L244), 0.3.281) | pass^k | Unbiased, `math.comb(correct, k) / math.comb(total, k)` | Per sample; NaN if n < k | None |
+| inspect_ai `at_least`, `max_score` ([reducer.py L129-160](https://github.com/UKGovernmentBEIS/inspect_ai/blob/44ff4188232418ead18467596909272850483951/src/inspect_ai/scorer/_reducer/reducer.py#L129-L160), [L247-301](https://github.com/UKGovernmentBEIS/inspect_ai/blob/44ff4188232418ead18467596909272850483951/src/inspect_ai/scorer/_reducer/reducer.py#L247-L301)) | at least k of all n epochs passed; the highest score | Not pass@k: `at_least(1)` and `max_score` on 0/1 scores say any of the n passed, which estimates pass@n | - | None |
+| inspect_ai at HEAD ([reducer.py L170-250](https://github.com/UKGovernmentBEIS/inspect_ai/blob/cf72dbc041f9311d12d8e4b0aeef9208bca276ef/src/inspect_ai/scorer/_reducer/reducer.py#L170-L250)) | the same | The four reducers are unchanged since 0.3.281 | - | None |
+| inspect_evals zerobench `reliability_at` ([reducer.py L13-78](https://github.com/UKGovernmentBEIS/inspect_evals/blob/c2d3d5e1335c07fb8032bcfc7869e9437e635c4c/src/inspect_evals/zerobench/reducer.py#L13-L78)) | 5-of-5 reliability, a pass^5 | Unbiased, `comb(correct, k)` over `comb(total, k)` | k > n returns 0.0, not NaN | None |
+| inspect_evals swe_lancer ([swe_lancer.py L133](https://github.com/UKGovernmentBEIS/inspect_evals/blob/c2d3d5e1335c07fb8032bcfc7869e9437e635c4c/src/inspect_evals/swe_lancer/swe_lancer.py#L133)) | pass@k | inspect_ai `pass_at(k=epochs)`, so any epoch passed | - | None |
+| human-eval `estimate_pass_at_k` ([evaluation.py L13-36](https://github.com/openai/human-eval/blob/b9453e8f1865df0a0057a1383767caa400acfbcf/human_eval/evaluation.py#L13-L36)) | pass@k | Unbiased, the reference form | Per problem; a k is reported only if every problem has n >= k | None |
+
+The answer to the question is no, in the direction that matters less: every public pass^k or
+pass@k computed from replicate trials uses the unbiased estimator, none the plug-in. What is
+missing is an interval: none reports one for pass^k, and the only standard errors on pass@k (HAL's
+USACO code) are flagged by their own authors. Three smaller findings: tau-bench's divisor is the
+run's trial count, not the task's; zerobench returns 0 rather than missing when k > n; and HAL's
+outcome consistency is a plug-in, which by our arithmetic (not stated in that repo) is biased up by
+4p(1 - p)/K, since E[(2 p_hat - 1)^2] = (2p - 1)^2 + 4 Var(p_hat). Not read: inspect_ai's metric
+and registry code, the tau2 web leaderboard, and the tau-bench version HAL installs; a GitHub code
+search for other implementations was refused (401), so others may exist.
+
 ## Report
 
 `report.py` fills `report_text.py` from the committed outputs. `results/v1/report.sha256` is the hash

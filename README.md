@@ -48,6 +48,10 @@ are 95%. MDEs are at 5% two-sided and 80% power, for near pairs with a pass rate
 - **Replicate noise is an integrity signal (exploratory).** One submission's five jobs agree on all
   89 tasks, trial for trial, so it is left out. Four of the six submissions from the three agents
   the organisers named rank in the lowest 9 of 148 for how often trials of one task disagree.
+- **pass^k needs an interval, not a new formula (added 2026-11-21, after v1).** The public reducers
+  read here already use the unbiased C(c,k)/C(n,k), and none reports an interval. A cell's pass^5
+  from 5 trials on 89 tasks is +-9.5 points over tasks like these (median over 60 cells); the
+  plug-in (c/n)^5 would overstate it by a median 3.9 points.
 <!-- end of generated findings -->
 
 This gap is narrow: prior work already showed that adjacent ranks are noise. The decomposition, the
@@ -71,6 +75,26 @@ and `--target fixed` asks about these tasks only. `--run upper` adds the run ter
 
 An installed wheel carries `results/v1`, so these commands need no checkout. Commands that rebuild
 results write under the working folder.
+
+## pass^k and pass@k
+
+`trialnoise.passk` gives the exact law, mean and variance of the unbiased pass^k and pass@k
+estimators from n trials per task, the benchmark's law by convolution over tasks, intervals, and
+the trials per task an interval width needs. Tables, the Terminal-Bench 2 numbers and an audit of
+public implementations: [REPORT.md](REPORT.md#addendum-2026-11-21-passk-and-passk) and
+[docs/DESIGN.md](docs/DESIGN.md#passk-and-passk).
+
+```python
+from fractions import Fraction
+from trialnoise import passk
+
+passk.variance(5, 3, Fraction(4, 5))  # one task, n=5, k=3, p=0.8: exact
+passk.benchmark([(5, 5), (3, 5), (0, 5)], k=3)  # (passes, trials) per task
+passk.trials_needed(k=5, width=0.10, tasks=89, kind="guaranteed")
+```
+
+`uv run trialnoise passk --table your_trials.csv --k 5` prints each cell's pass^k and pass@k with
+95% intervals (columns: cell, task, reward; a reward of 1 is a pass).
 
 ## Your own Inspect logs
 
